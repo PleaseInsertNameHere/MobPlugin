@@ -90,6 +90,7 @@ public class AutoSpawnTask implements Runnable {
         animalSpawners.add(new RabbitSpawner(this));
         animalSpawners.add(new SalmonSpawner(this));
         animalSpawners.add(new SheepSpawner(this));
+        animalSpawners.add(new GoatSpawner(this));
         monsterSpawners.add(new SkeletonSpawner(this));
         monsterSpawners.add(new SlimeSpawner(this));
         monsterSpawners.add(new SpiderSpawner(this));

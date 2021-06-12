@@ -99,6 +99,11 @@ public class PolarBear extends WalkingMonster {
         }
     }
 
+    @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
     public boolean isAngry() {
         return this.angry > 0;
     }

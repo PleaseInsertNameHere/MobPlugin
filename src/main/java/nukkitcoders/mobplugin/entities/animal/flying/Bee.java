@@ -95,6 +95,11 @@ public class Bee extends FlyingMonster {
     }
 
     @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
     public boolean targetOption(EntityCreature creature, double distance) {
         return this.isAngry() && super.targetOption(creature, distance);
     }
