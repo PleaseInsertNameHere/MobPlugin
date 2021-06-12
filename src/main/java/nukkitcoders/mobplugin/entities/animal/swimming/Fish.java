@@ -38,6 +38,8 @@ public abstract class Fish extends SwimmingAnimal {
             if (item.hasCustomName()) {
                 this.setNameTag(item.getCustomName());
                 this.setNameTagVisible(true);
+                //test
+
                 player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
                 return true;
             }
