@@ -6,6 +6,7 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.animal.SwimmingAnimal;
+import nukkitcoders.mobplugin.entities.monster.flying.EnderDragon;
 import nukkitcoders.mobplugin.utils.Utils;
 
 public abstract class Fish extends SwimmingAnimal {
@@ -31,6 +32,13 @@ public abstract class Fish extends SwimmingAnimal {
                     player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
                 }
                 player.getInventory().addItem(Item.get(Item.BUCKET, this.getBucketMeta(), 1));
+                return true;
+            }
+        } if (item.getId() == Item.NAME_TAG) {
+            if (item.hasCustomName()) {
+                this.setNameTag(item.getCustomName());
+                this.setNameTagVisible(true);
+                player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
                 return true;
             }
         }
