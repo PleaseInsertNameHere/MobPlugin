@@ -1,6 +1,7 @@
 package nukkitcoders.mobplugin.entities.animal.swimming;
 
 import cn.nukkit.Player;
+import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.data.ByteEntityData;
 import cn.nukkit.entity.data.IntEntityData;
 import cn.nukkit.entity.data.StringEntityData;
@@ -58,6 +59,16 @@ public class Axolotl extends Fish {
         this.color = color;
         this.namedTag.putInt("Variant", color);
         this.setDataProperty(new IntEntityData(DATA_VARIANT, color));
+    }
+
+    @Override
+    public boolean targetOption(EntityCreature creature, double distance) {
+        if (creature instanceof Player) {
+            Player player = (Player) creature;
+
+            return player.spawned && player.isAlive() && !player.closed && player.getInventory().getItemInHand().getId() == Item.CARROT && distance <= 49;
+        }
+        return false;
     }
 
     public int getColor() {

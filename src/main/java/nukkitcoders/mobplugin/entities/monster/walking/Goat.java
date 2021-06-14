@@ -118,7 +118,6 @@ public class Goat extends WalkingMonster {
     public void attackEntity(Entity player) {
         if (this.attackDelay > 360 && player.distanceSquared(this) <= 3.5) {
             this.attackDelay = 0;
-            System.out.println(2);
 
             HashMap<EntityDamageEvent.DamageModifier, Float> damage = new HashMap<>();
             damage.put(EntityDamageEvent.DamageModifier.BASE, this.getDamage());
@@ -130,8 +129,6 @@ public class Goat extends WalkingMonster {
 
     @Override
     public void jumpEntity(Entity player) {
-        System.out.println(2);
-
         if (this.jumpDelay > 60) {
             this.jumpDelay = 0;
 

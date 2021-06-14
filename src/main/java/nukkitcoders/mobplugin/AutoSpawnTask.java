@@ -130,6 +130,7 @@ public class AutoSpawnTask implements Runnable {
         maxSpawns.put(Parrot.NETWORK_ID, this.pluginConfig.getInt("autospawn.parrot"));
         maxSpawns.put(Pig.NETWORK_ID, this.pluginConfig.getInt("autospawn.pig"));
         maxSpawns.put(Axolotl.NETWORK_ID, this.pluginConfig.getInt("autospawn.axolotl"));
+        maxSpawns.put(GlowSquid.NETWORK_ID, this.pluginConfig.getInt("autospawn.glowsquid"));
         maxSpawns.put(PolarBear.NETWORK_ID, this.pluginConfig.getInt("autospawn.polarbear"));
         maxSpawns.put(Pufferfish.NETWORK_ID, this.pluginConfig.getInt("autospawn.pufferfish"));
         maxSpawns.put(Rabbit.NETWORK_ID, this.pluginConfig.getInt("autospawn.rabbit"));

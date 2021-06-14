@@ -177,8 +177,6 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
                         this.jumpEntity(entity); // not working
                     }
                 } else {
-                    System.out.println(3);
-
                     this.attackEntity(entity);
                 }
             }

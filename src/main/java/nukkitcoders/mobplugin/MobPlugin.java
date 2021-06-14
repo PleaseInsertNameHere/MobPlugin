@@ -218,6 +218,7 @@ public class MobPlugin extends PluginBase implements Listener {
         Entity.registerEntity(Sheep.class.getSimpleName(), Sheep.class);
         Entity.registerEntity(Goat.class.getSimpleName(), Goat.class);
         Entity.registerEntity(Squid.class.getSimpleName(), Squid.class);
+        Entity.registerEntity(GlowSquid.class.getSimpleName(), GlowSquid.class);
         Entity.registerEntity(TropicalFish.class.getSimpleName(), TropicalFish.class);
         Entity.registerEntity(Turtle.class.getSimpleName(), Turtle.class);
         Entity.registerEntity("VillagerV1", Villager.class);
