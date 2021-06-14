@@ -22,6 +22,8 @@ public abstract class Fish extends SwimmingAnimal {
 
     @Override
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
+        super.onInteract(player, item, clickedPos);
+
         if (item.getId() == Item.BUCKET && item.getDamage() == 0 && this.isInsideOfWater()) {
             this.close();
             if (item.getCount() <= 1) {
@@ -34,7 +36,7 @@ public abstract class Fish extends SwimmingAnimal {
                 player.getInventory().addItem(Item.get(Item.BUCKET, this.getBucketMeta(), 1));
                 return true;
             }
-        } if (item.getId() == Item.NAME_TAG) {
+        } else if (item.getId() == Item.NAME_TAG) {
             if (item.hasCustomName()) {
                 this.setNameTag(item.getCustomName());
                 this.setNameTagVisible(true);
