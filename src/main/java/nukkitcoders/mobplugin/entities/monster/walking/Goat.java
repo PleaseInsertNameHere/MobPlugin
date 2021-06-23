@@ -59,26 +59,24 @@ public class Goat extends WalkingMonster {
         this.setDamage(new float[]{0.5F, 1, 2, 3});
     }
 
-   /* @Override
+    @Override
     public boolean targetOption(EntityCreature creature, double distance) {
         if (creature instanceof Player) {
             Player player = (Player) creature;
             int id = player.getInventory().getItemInHand().getId();
-            return player.spawned && player.isAlive() && !player.closed && (id == Item.CARROT || id == Item.GOLDEN_CARROT) && distance <= 49;
+            return player.spawned && player.isAlive() && !player.closed && (id == Item.WHEAT) && distance <= 49;
         }
         return false;
     }
-
-    */
 
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.WOOL, 0, Utils.rand(0, 1)));
-            drops.add(Item.get(Item.BONE, 0, Utils.rand(0, 1)));
-            drops.add(Item.get(Item.RAW_MUTTON, 0, Utils.rand(0, 2)));
+            for (int i = 0; i < Utils.rand(1, 2); i++) {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, 1));
+            }
         }
 
         return drops.toArray(new Item[0]);
@@ -86,7 +84,7 @@ public class Goat extends WalkingMonster {
 
     @Override
     public int getKillExperience() {
-        return Utils.rand(1, 3);
+        return this.isBaby() ? 0 : Utils.rand(1, 3);
     }
 
     @Override
@@ -109,6 +107,12 @@ public class Goat extends WalkingMonster {
                 player.getInventory().setItemInHand(newBucket);
             }
             this.level.addSound(this, Sound.MOB_COW_MILK);
+            return true;
+        } else if (item.getId() == Item.WHEAT && !this.isBaby()) {
+            player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
+            this.level.addSound(this, Sound.RANDOM_EAT);
+            this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), Item.get(Item.WHEAT)));
+            this.setDataFlag(DATA_FLAGS, DATA_FLAG_INLOVE);
             return true;
         }
         return super.onInteract(player, item, clickedPos);
