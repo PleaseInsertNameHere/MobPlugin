@@ -37,7 +37,7 @@ public class Axolotl extends Fish {
 
     @Override
     int getBucketMeta() {
-        return 6;
+        return 12;
     }
 
     @Override
