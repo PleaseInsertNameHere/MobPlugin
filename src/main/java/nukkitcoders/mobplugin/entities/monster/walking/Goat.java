@@ -8,12 +8,14 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.particle.HeartParticle;
 import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.List;
 public class Goat extends WalkingMonster {
 
     public static final int NETWORK_ID = 128;
+    protected int inLoveTicks = 0;
 
     public Goat(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -56,6 +59,7 @@ public class Goat extends WalkingMonster {
 
     @Override
     public boolean targetOption(EntityCreature creature, double distance) {
+        super.targetOption(creature, distance);
         if (creature instanceof Player) {
             Player player = (Player) creature;
             int id = player.getInventory().getItemInHand().getId();
@@ -63,7 +67,6 @@ public class Goat extends WalkingMonster {
         }
         return false;
     }
-
 
     @Override
     public Item[] getDrops() {
@@ -107,7 +110,7 @@ public class Goat extends WalkingMonster {
             player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
             this.level.addSound(this, Sound.RANDOM_EAT);
             this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), Item.get(Item.WHEAT)));
-            this.setDataFlag(DATA_FLAGS, DATA_FLAG_INLOVE); // doesnt work  //ToDO: Make Goat an Walking Animal
+            setInLove();
             return true;
         }
         return super.onInteract(player, item, clickedPos);
@@ -135,4 +138,57 @@ public class Goat extends WalkingMonster {
             this.updateMovement();
         }
     }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        boolean hasUpdate = super.entityBaseTick(tickDiff);
+
+        if (this.isInLove()) {
+            this.inLoveTicks -= tickDiff;
+            if (this.age % 20 == 0) {
+                for (int i = 0; i < 3; i++) {
+                    this.level.addParticle(new HeartParticle(this.add(Utils.rand(-1.0, 1.0), this.getMountedYOffset() + Utils.rand(-1.0, 1.0), Utils.rand(-1.0, 1.0))));
+                }
+                for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(10, 5, 10), this)) {
+                    if (!entity.isClosed() && this.getClass().isInstance(entity)) {
+                        Goat goat = (Goat) entity;
+                        if (goat.isInLove()) {
+                            this.inLoveTicks = 0;
+                            goat.inLoveTicks = 0;
+                            this.spawnBaby();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return hasUpdate;
+    }
+
+    protected void spawnBaby() {
+        try {
+            Goat goat = this.getClass().getConstructor(FullChunk.class, CompoundTag.class).newInstance(this.getChunk(), Entity.getDefaultNBT(this));
+            goat.setBaby(true);
+            goat.spawnToAll();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setInLove() {
+        this.inLoveTicks = 600;
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_INLOVE);
+    }
+
+    public boolean isInLove() {
+        return inLoveTicks > 0;
+    }
+
 }
