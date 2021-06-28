@@ -5,13 +5,10 @@ import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.data.ByteEntityData;
 import cn.nukkit.entity.data.IntEntityData;
 import cn.nukkit.entity.data.StringEntityData;
-import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
-import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.network.protocol.EntityEventPacket;
 import cn.nukkit.utils.DyeColor;
 import nukkitcoders.mobplugin.utils.Utils;
 
@@ -37,7 +34,7 @@ public class Axolotl extends Fish {
 
     @Override
     int getBucketMeta() {
-        return 12;
+        return 6;
     }
 
     @Override
@@ -71,22 +68,6 @@ public class Axolotl extends Fish {
             return player.spawned && player.isAlive() && !player.closed && (player.getInventory().getItemInHand().getId() == Item.RAW_FISH || player.getInventory().getItemInHand().getId() == Item.RAW_SALMON) && distance <= 40;
         }
         return false;
-    }
-
-    @Override
-    public boolean attack(EntityDamageEvent source) {
-        boolean att =  super.attack(source);
-        if (source.isCancelled()) {
-            return att;
-        }
-
-        EntityEventPacket pk0 = new EntityEventPacket();
-        pk0.eid = this.getId();
-        pk0.event = EntityEventPacket.TAME_SUCCESS;
-
-        this.level.addChunkPacket(this.getChunkX() >> 4,this.getChunkZ() >> 4,pk0);
-        this.level.addSound(this.getLocation(), Sound.RAID_HORN);
-        return att;
     }
 
     public int getColor() {
