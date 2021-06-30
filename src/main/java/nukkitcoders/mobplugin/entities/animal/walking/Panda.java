@@ -89,7 +89,6 @@ public class Panda extends WalkingAnimal {
                 this.setInLove();
                 return true;
             } else {
-                System.out.println(5446545);
                 AnimateEntityPacket packet = new AnimateEntityPacket();
                 packet.setAnimation("animation.panda.sitting");
                 packet.setStopExpression("");
