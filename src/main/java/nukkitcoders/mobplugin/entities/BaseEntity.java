@@ -153,18 +153,11 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
     }
 
     public boolean targetOption(EntityCreature creature, double distance) {
-        if (this instanceof Monster && !(this instanceof Goat)) {
+        if (this instanceof Monster) {
             if (creature instanceof Player) {
                 Player player = (Player) creature;
                 return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && distance <= 100;
             }
-            return creature.isAlive() && !creature.closed && distance <= 100;
-        } if(this instanceof Goat && this.attackDelay > 360) {
-            if (creature instanceof Player) {
-                Player player = (Player) creature;
-                return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && distance <= 100;
-            }
-            return creature.isAlive() && !creature.closed && distance <= 100;
         }
         return false;
     }

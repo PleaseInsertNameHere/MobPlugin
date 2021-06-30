@@ -59,7 +59,13 @@ public class Goat extends WalkingMonster {
 
     @Override
     public boolean targetOption(EntityCreature creature, double distance) {
-        super.targetOption(creature, distance);
+        if (this.attackDelay > 360) {
+            if (creature instanceof Player) {
+                Player player = (Player) creature;
+                return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && distance <= 100;
+            }
+            return creature.isAlive() && !creature.closed && distance <= 100;
+        }
         if (creature instanceof Player) {
             Player player = (Player) creature;
             int id = player.getInventory().getItemInHand().getId();
