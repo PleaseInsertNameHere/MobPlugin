@@ -13,7 +13,7 @@ import nukkitcoders.mobplugin.utils.Utils;
 
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class WalkingAnimal extends WalkingEntity implements Animal {
+public abstract class WalkingAnimal extends WalkingEntity implements Animal { // Todo: EntityBreading Class
 
     protected int inLoveTicks = 0;
 
@@ -66,13 +66,7 @@ public abstract class WalkingAnimal extends WalkingEntity implements Animal {
             animal.setBaby(true);
             animal.spawnToAll();
             this.getLevel().dropExpOrb(this, Utils.rand(1, 7));
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
