@@ -3,9 +3,12 @@ package nukkitcoders.mobplugin.entities.animal.walking;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.mob.EntityWitch;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.animal.WalkingAnimal;
+import nukkitcoders.mobplugin.entities.monster.walking.Zombie;
+import nukkitcoders.mobplugin.entities.monster.walking.ZombieVillager;
 
 import static cn.nukkit.entity.passive.EntityVillagerV1.PROFESSION_GENERIC;
 
@@ -92,5 +95,20 @@ public class Villager extends WalkingAnimal {
         } else {
             super.onStruckByLightning(entity);
         }
+    }
+
+    @Override
+    public void kill() {
+        if (this.isAlive()) {
+            if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {
+                Entity killer = ((EntityDamageByEntityEvent) this.lastDamageCause).getDamager();
+                if (killer instanceof Zombie || killer instanceof ZombieVillager) {
+                    ZombieVillager zombieVillager = new ZombieVillager(this.getChunk(), this.getDefaultNBT(this));
+                    zombieVillager.spawnToAll();
+                }
+            }
+
+        }
+        super.kill();
     }
 }
