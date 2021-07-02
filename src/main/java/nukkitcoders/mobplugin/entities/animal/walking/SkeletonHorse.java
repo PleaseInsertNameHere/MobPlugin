@@ -85,7 +85,6 @@ public class SkeletonHorse extends WalkingAnimal implements EntitySmite, EntityR
         Objects.requireNonNull(entity, "The target of the mounting entity can't be null");
 
         if (entity.riding != null) {
-            System.out.println(222);
             dismountEntity(entity);
             entity.resetFallDistance();
         } else {
@@ -185,7 +184,6 @@ public class SkeletonHorse extends WalkingAnimal implements EntitySmite, EntityR
 
         for (Entity passenger : new ArrayList<>(this.passengers)) {
             if (!passenger.isAlive() || Utils.entityInsideWaterFast(this)) {
-                System.out.println(111);
                 dismountEntity(passenger);
                 continue;
             }
