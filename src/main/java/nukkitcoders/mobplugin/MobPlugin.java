@@ -14,7 +14,6 @@ import nukkitcoders.mobplugin.entities.BaseEntity;
 import nukkitcoders.mobplugin.entities.animal.flying.Bat;
 import nukkitcoders.mobplugin.entities.animal.flying.Bee;
 import nukkitcoders.mobplugin.entities.animal.flying.Parrot;
-import nukkitcoders.mobplugin.entities.monster.walking.Goat;
 import nukkitcoders.mobplugin.entities.animal.jumping.Rabbit;
 import nukkitcoders.mobplugin.entities.animal.swimming.*;
 import nukkitcoders.mobplugin.entities.animal.walking.*;
@@ -33,12 +32,26 @@ import nukkitcoders.mobplugin.utils.Utils;
  */
 public class MobPlugin extends PluginBase implements Listener {
 
-    public Config config;
-
     private static MobPlugin instance;
+    public Config config;
 
     public static MobPlugin getInstance() {
         return instance;
+    }
+
+    public static boolean isAnimalSpawningAllowedByTime(Level level) {
+        int time = level.getTime() % Level.TIME_FULL;
+        return time < 13184 || time > 22800;
+    }
+
+    public static boolean isMobSpawningAllowedByTime(Level level) {
+        int time = level.getTime() % Level.TIME_FULL;
+        return time > 13184 && time < 22800;
+    }
+
+    public static boolean shouldMobBurn(Level level, BaseEntity entity) {
+        int time = level.getTime() % Level.TIME_FULL;
+        return !entity.isOnFire() && !level.isRaining() && !entity.isBaby() && (time < 12567 || time > 23450) && !Utils.entityInsideWaterFast(entity) && (double) entity.getChunk().getHighestBlockAt(entity.getFloorX() & 15, entity.getFloorZ() & 15, false) < entity.getY();
     }
 
     @Override
@@ -273,20 +286,5 @@ public class MobPlugin extends PluginBase implements Listener {
         Entity.registerEntity("WitherSkull", EntityWitherSkull.class);
         Entity.registerEntity("SlownessArrow", EntitySlownessArrow.class);
         Entity.registerEntity("Trident", EntityTrident.class);
-    }
-
-    public static boolean isAnimalSpawningAllowedByTime(Level level) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return time < 13184 || time > 22800;
-    }
-
-    public static boolean isMobSpawningAllowedByTime(Level level) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return time > 13184 && time < 22800;
-    }
-
-    public static boolean shouldMobBurn(Level level, BaseEntity entity) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return !entity.isOnFire() && !level.isRaining() && !entity.isBaby() && (time < 12567 || time > 23450) && !Utils.entityInsideWaterFast(entity) && level.canBlockSeeSky(entity);
     }
 }
