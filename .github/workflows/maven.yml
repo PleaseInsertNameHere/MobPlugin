@@ -28,7 +28,7 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package
-    - name Rename Artifacts
+    - name: Rename Artifacts
       run: mv target/MobPlugin-*.jar target/MobPlugin.jar
     - name: Archive artifacts
       uses: actions/upload-artifact@v1
