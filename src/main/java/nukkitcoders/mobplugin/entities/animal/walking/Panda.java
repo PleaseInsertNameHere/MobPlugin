@@ -1,6 +1,7 @@
 package nukkitcoders.mobplugin.entities.animal.walking;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.BlockBamboo;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.MinecraftItemID;
@@ -89,19 +90,19 @@ public class Panda extends WalkingAnimal {
                 this.setInLove();
                 return true;
             } else {
+                // Todo: Fix Animation (Animation doesnt stop, Panda don't sit down)
                 AnimateEntityPacket packet = new AnimateEntityPacket();
                 packet.setAnimation("animation.panda.sitting");
-                packet.setStopExpression("");
+                packet.setNextState("default");
+                packet.setBlendOutTime(5f);
+                packet.setStopExpression("query.any_animation_finished");
+                packet.setController("__runtime_controller");
                 List<Long> entityruntimeids = new ArrayList<>();
                 entityruntimeids.add(this.getId());
                 packet.setEntityRuntimeIds(entityruntimeids);
-                packet.setBlendOutTime(5f);
-                packet.setStopExpression("default");
-                packet.setNextState("default");
-                packet.setController("");
-                player.dataPacket(packet);
-                this.setDataFlag(DATA_FLAGS, DATA_FLAG_SITTING, true);
-                // Todo: Animation
+                for (Player all : Server.getInstance().getOnlinePlayers().values())
+                all.dataPacket(packet);
+               // this.setDataFlag(DATA_FLAGS, DATA_FLAG_SITTING, true); // doesnt work for pandas
             }
 
 
