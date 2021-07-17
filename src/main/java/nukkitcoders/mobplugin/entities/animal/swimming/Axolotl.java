@@ -133,7 +133,7 @@ public class Axolotl extends Fish {
             this.setInLove();
             return true;
         }
-        return super.onInteract(player, item);
+        return super.onInteract(player, item, clickedPos);
     }
 
     protected void spawnBaby() {
