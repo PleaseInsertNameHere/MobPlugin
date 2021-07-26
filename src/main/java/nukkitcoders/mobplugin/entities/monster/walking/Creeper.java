@@ -21,6 +21,7 @@ import cn.nukkit.level.particle.HugeExplodeSeedParticle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.LevelSoundEventPacket;
+import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.route.WalkerRouteFinder;
 import nukkitcoders.mobplugin.utils.Utils;
@@ -85,7 +86,7 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
         if (!ev.isCancelled()) {
             Explosion explosion = new Explosion(this, (float) ev.getForce(), this);
 
-            if (ev.isBlockBreaking() && this.level.getGameRules().getBoolean(GameRule.MOB_GRIEFING)) {
+            if (ev.isBlockBreaking() && this.level.getGameRules().getBoolean(GameRule.MOB_GRIEFING) && MobPlugin.getInstance().config.pluginConfig.getBoolean("creeper-explode-blocks")) {
                 explosion.explodeA();
             }
 

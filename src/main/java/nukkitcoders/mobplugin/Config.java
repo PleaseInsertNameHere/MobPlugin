@@ -20,10 +20,12 @@ public class Config {
     }
 
     boolean init(MobPlugin plugin) {
-        int ver = 15;
+        int ver = 16;
 
         if (pluginConfig.getInt("config-version") != ver) {
-            if (pluginConfig.getInt("config-version") == 14) {
+            if (pluginConfig.getInt("config-version") == 15) {
+                pluginConfig.set("creeper-explode-blocks", true);
+            } else if (pluginConfig.getInt("config-version") == 14) {
                 pluginConfig.set("other.check-tamed-entity-attack", true);
             } else if (pluginConfig.getInt("config-version") == 13) {
                 pluginConfig.set("autospawn.piglin", 0);
