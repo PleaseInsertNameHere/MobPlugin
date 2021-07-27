@@ -13,7 +13,7 @@ entities:
   # do not spawn entities in these worlds
   worlds-spawning-disabled: "exampleworld1, exampleworld2"
   # do not allow creating snow golems, iron golems and withers in these worlds
-  entity-creation-disabled: "expampleworld1, exampleworld2"
+  entity-creation-disabled: "exampleworld1, exampleworld2"
 
 # spawning limit settings
 # per player, in 100 blocks range
