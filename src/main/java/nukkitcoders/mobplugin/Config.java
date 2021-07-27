@@ -13,6 +13,7 @@ public class Config {
     public boolean killOnDespawn;
     public boolean spawnersEnabled;
     public boolean checkTamedEntityAttack;
+    public boolean creeperExplodeBlocks;
 
     Config(MobPlugin plugin) {
         plugin.saveDefaultConfig();
@@ -83,6 +84,7 @@ public class Config {
         endEndermanSpawnRate = pluginConfig.getInt("other.end-enderman-spawning");
         spawnersEnabled = pluginConfig.getBoolean("other.spawners-enabled");
         checkTamedEntityAttack = pluginConfig.getBoolean("other.check-tamed-entity-attack");
+        creeperExplodeBlocks = pluginConfig.getBoolean("creeper-explode-blocks");
         return true;
     }
 }
