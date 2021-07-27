@@ -59,15 +59,15 @@ import java.util.StringTokenizer;
 import static nukkitcoders.mobplugin.entities.block.BlockEntitySpawner.*;
 
 public class EventListener implements Listener {
-    private final ArrayList<String> worldSpawningDisabled = new ArrayList<>();
+    private final ArrayList<String> entityCreationDisabled = new ArrayList<>();
 
     public EventListener() {
         // Adapted from: https://github.com/Nukkit-coders/MobPlugin/blob/8a76ee78cb7d895ed8f3dd4613d785b01b74df27/src/main/java/nukkitcoders/mobplugin/entities/autospawn/AbstractEntitySpawner.java
-        String disabledWorlds = MobPlugin.getInstance().config.pluginConfig.getString("entities.worlds-spawning-disabled");
+        String disabledWorlds = MobPlugin.getInstance().config.pluginConfig.getString("entities.entity-creation-disabled");
         if (disabledWorlds != null && !disabledWorlds.isEmpty()) {
             StringTokenizer tokenizer = new StringTokenizer(disabledWorlds, ", ");
             while (tokenizer.hasMoreTokens()) {
-                worldSpawningDisabled.add(tokenizer.nextToken().toLowerCase());
+                entityCreationDisabled.add(tokenizer.nextToken().toLowerCase());
             }
         }
     }
@@ -86,8 +86,8 @@ public class EventListener implements Listener {
         this.handleAttackedEntityAngry(ev.getEntity());
     }
 
-    private boolean isWorldSpawnAllowed(Level level) {
-        return level.getGameRules().getBoolean(GameRule.DO_MOB_SPAWNING) && !this.worldSpawningDisabled.contains(level.getName().toLowerCase());
+    private boolean isEntityCreationAllowed(Level level) {
+        return !this.entityCreationDisabled.contains(level.getName().toLowerCase());
     }
 
     private void handleExperienceOrb(Entity entity) {
@@ -218,7 +218,7 @@ public class EventListener implements Listener {
         Block block = ev.getBlock();
         Player player = ev.getPlayer();
         Item item = ev.getItem();
-        if (!isWorldSpawnAllowed(block.getLevel())) {
+        if (!isEntityCreationAllowed(block.getLevel())) {
             return;
         }
         if (block.getId() == Block.JACK_O_LANTERN || block.getId() == Block.PUMPKIN) {
