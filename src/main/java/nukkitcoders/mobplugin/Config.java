@@ -25,7 +25,7 @@ public class Config {
 
         if (pluginConfig.getInt("config-version") != ver) {
             if (pluginConfig.getInt("config-version") == 15) {
-                pluginConfig.set("creeper-explode-blocks", true);
+                pluginConfig.set("other.creeper-explode-blocks", true);
             } else if (pluginConfig.getInt("config-version") == 14) {
                 pluginConfig.set("other.check-tamed-entity-attack", true);
             } else if (pluginConfig.getInt("config-version") == 13) {
@@ -84,7 +84,7 @@ public class Config {
         endEndermanSpawnRate = pluginConfig.getInt("other.end-enderman-spawning");
         spawnersEnabled = pluginConfig.getBoolean("other.spawners-enabled");
         checkTamedEntityAttack = pluginConfig.getBoolean("other.check-tamed-entity-attack");
-        creeperExplodeBlocks = pluginConfig.getBoolean("creeper-explode-blocks");
+        creeperExplodeBlocks = pluginConfig.getBoolean("other.creeper-explode-blocks");
         return true;
     }
 }
