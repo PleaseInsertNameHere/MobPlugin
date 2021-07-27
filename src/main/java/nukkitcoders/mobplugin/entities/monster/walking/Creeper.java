@@ -81,11 +81,12 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
         if (this.closed) return;
 
         EntityExplosionPrimeEvent ev = new EntityExplosionPrimeEvent(this, this.isPowered() ? 6 : 3);
-        this.server.getPluginManager().callEvent(ev);
 
         if (MobPlugin.getInstance().config.creeperExplodeBlocks) {
             ev.setBlockBreaking(false);
         }
+
+        this.server.getPluginManager().callEvent(ev);
 
         if (!ev.isCancelled()) {
             Explosion explosion = new Explosion(this, (float) ev.getForce(), this);
