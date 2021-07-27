@@ -27,16 +27,20 @@ public class Config {
             if (pluginConfig.getInt("config-version") == 15) {
                 pluginConfig.set("other.creeper-explode-blocks", true);
             } else if (pluginConfig.getInt("config-version") == 14) {
+                pluginConfig.set("other.creeper-explode-blocks", true);
                 pluginConfig.set("other.check-tamed-entity-attack", true);
             } else if (pluginConfig.getInt("config-version") == 13) {
+                pluginConfig.set("other.creeper-explode-blocks", true);
                 pluginConfig.set("autospawn.piglin", 0);
             } else if (pluginConfig.getInt("config-version") == 12) {
                 pluginConfig.set("autospawn.fox", 0);
                 pluginConfig.set("autospawn.panda", 0);
                 pluginConfig.set("autospawn.drowned", 0);
                 pluginConfig.set("autospawn.piglin", 0);
+                pluginConfig.set("other.creeper-explode-blocks", true);
                 pluginConfig.set("other.check-tamed-entity-attack", true);
             } else if (pluginConfig.getInt("config-version") == 11) {
+                pluginConfig.set("other.creeper-explode-blocks", true);
                 pluginConfig.set("other.spawners-enabled", true);
                 pluginConfig.set("other.end-enderman-spawning", 10);
                 pluginConfig.set("autospawn.fox", 0);
@@ -45,6 +49,7 @@ public class Config {
                 pluginConfig.set("autospawn.piglin", 0);
                 pluginConfig.set("other.check-tamed-entity-attack", true);
             } else if (pluginConfig.getInt("config-version") == 10) {
+                pluginConfig.set("other.creeper-explode-blocks", true);
                 pluginConfig.set("other.kill-mobs-on-despawn", false);
                 pluginConfig.set("other.spawners-enabled", true);
                 pluginConfig.set("other.end-enderman-spawning", 10);
@@ -54,6 +59,7 @@ public class Config {
                 pluginConfig.set("autospawn.piglin", 0);
                 pluginConfig.set("other.check-tamed-entity-attack", true);
             } else if (pluginConfig.getInt("config-version") == 9) {
+                pluginConfig.set("other.creeper-explode-blocks", true);
                 pluginConfig.set("other.spawn-no-spawning-area", -1);
                 pluginConfig.set("other.kill-mobs-on-despawn", false);
                 pluginConfig.set("other.spawners-enabled", true);
