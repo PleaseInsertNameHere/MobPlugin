@@ -114,6 +114,13 @@ public class BlockEntitySpawner extends BlockEntitySpawnable {
                                 this.level
                         );
 
+                for (int y = (int) pos.y; y <= 256; y++) {
+                    if (!level.getBlock((int) this.x, y, (int) this.z).isSolid()) {
+                        pos.y = y;
+                        break;
+                    }
+                }
+
                 CreatureSpawnEvent ev = new CreatureSpawnEvent(this.entityId, pos, new CompoundTag(), CreatureSpawnEvent.SpawnReason.SPAWNER);
                 level.getServer().getPluginManager().callEvent(ev);
 
