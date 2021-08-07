@@ -296,6 +296,7 @@ public class AutoSpawnTask implements Runnable {
             case Piglin.NETWORK_ID:
             case WitherSkeleton.NETWORK_ID:
             case ZombiePigman.NETWORK_ID:
+            case Hoglin.NETWORK_ID:
                 return Level.DIMENSION_NETHER == dimension;
             default:
                 return Level.DIMENSION_OVERWORLD == dimension;
