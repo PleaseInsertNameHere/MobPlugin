@@ -148,6 +148,7 @@ public class AutoSpawnTask implements Runnable {
         maxSpawns.put(Panda.NETWORK_ID, this.pluginConfig.getInt("autospawn.panda"));
         maxSpawns.put(Drowned.NETWORK_ID, this.pluginConfig.getInt("autospawn.drowned"));
         maxSpawns.put(Piglin.NETWORK_ID, this.pluginConfig.getInt("autospawn.piglin"));
+        maxSpawns.put(Hoglin.NETWORK_ID, this.pluginConfig.getInt("autospawn.hoglin"));
     }
 
     public boolean entitySpawnAllowed(Level level, int networkId, Vector3 pos) {
