@@ -106,6 +106,7 @@ public class AutoSpawnTask implements Runnable {
         animalSpawners.add(new PandaSpawner(this));
         monsterSpawners.add(new DrownedSpawner(this));
         monsterSpawners.add(new PiglinSpawner(this));
+        monsterSpawners.add(new HoglinSpawner(this));
     }
 
     private void prepareMaxSpawns() {
