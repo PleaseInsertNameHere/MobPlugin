@@ -136,7 +136,7 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
         }
 
         if (this.namedTag.getBoolean("Baby")) {
-            this.setBaby(this.namedTag.getBoolean("Baby"));
+            this.setBaby(true);
         }
     }
 

@@ -42,8 +42,8 @@ public class AutoSpawnTask implements Runnable {
 
     private boolean mobsNext;
 
-    public AutoSpawnTask(MobPlugin plugin) {
-        this.pluginConfig = plugin.config.pluginConfig;
+    public AutoSpawnTask(MobPlugin plugin, Config pluginConfig) {
+        this.pluginConfig = pluginConfig;
         this.plugin = plugin;
 
         prepareMaxSpawns();

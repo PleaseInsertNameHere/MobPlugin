@@ -28,7 +28,7 @@ public abstract class RouteFinder {
 
     protected boolean interrupt = false;
 
-    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     protected boolean reachable = true;
 
