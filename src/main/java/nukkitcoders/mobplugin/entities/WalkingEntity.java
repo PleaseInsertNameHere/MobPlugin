@@ -25,6 +25,7 @@ public abstract class WalkingEntity extends BaseEntity {
     protected RouteFinder route = null;
 
     protected final boolean isDrowned = this instanceof Drowned;
+    protected RouteFinder route = null;
 
     public WalkingEntity(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -35,7 +36,7 @@ public abstract class WalkingEntity extends BaseEntity {
             return;
         }
 
-        if (this.followTarget != null && !this.followTarget.closed && this.followTarget.isAlive() && targetOption((EntityCreature) this.followTarget,this.distanceSquared(this.followTarget)) && this.target!=null) {
+        if (this.followTarget != null && !this.followTarget.closed && this.followTarget.isAlive() && targetOption((EntityCreature) this.followTarget, this.distanceSquared(this.followTarget)) && this.target != null) {
             return;
         }
 
@@ -161,6 +162,7 @@ public abstract class WalkingEntity extends BaseEntity {
             if (inWater && (downId == 0 || downId == 8 || downId == 9 || downId == BlockID.LAVA || downId == BlockID.STILL_LAVA || downId == BlockID.SIGN_POST || downId == BlockID.WALL_SIGN)) onGround = false;
             if (downId == 0 || downId == BlockID.SIGN_POST || downId == BlockID.WALL_SIGN) onGround = false;
             if (this.followTarget != null && !this.followTarget.closed && this.followTarget.isAlive() && this.target!=null) {
+
                 double x = this.target.x - this.x;
                 double z = this.target.z - this.z;
 
@@ -184,7 +186,8 @@ public abstract class WalkingEntity extends BaseEntity {
                         this.motionZ = this.getSpeed() * moveMultiplier * 0.1 * (z / diff);
                     }
                 }
-                if ((this.passengers.isEmpty() || this instanceof Llama || this instanceof Pig) && (this.stayTime <= 0 || Utils.rand())) this.yaw = Math.toDegrees(-FastMath.atan2(x / diff, z / diff));
+                if (((this.passengers.isEmpty() || this instanceof Llama || this instanceof Pig) && (this.stayTime <= 0 || Utils.rand())) && this.noRotateTicks <= 0)
+                    this.yaw = Math.toDegrees(-FastMath.atan2(x / diff, z / diff));
             }
 
             Vector3 before = this.target;
@@ -213,7 +216,8 @@ public abstract class WalkingEntity extends BaseEntity {
                         this.motionZ = this.getSpeed() * moveMultiplier * 0.15 * (z / diff);
                     }
                 }
-                if ((this.passengers.isEmpty() || this instanceof Llama || this instanceof Pig) && (this.stayTime <= 0 || Utils.rand())) this.yaw = Math.toDegrees(-FastMath.atan2(x / diff, z / diff));
+                if (((this.passengers.isEmpty() || this instanceof Llama || this instanceof Pig) && (this.stayTime <= 0 || Utils.rand())) && this.noRotateTicks <= 0)
+                    this.yaw = Math.toDegrees(-FastMath.atan2(x / diff, z / diff));
             }
 
             double dx = this.motionX;

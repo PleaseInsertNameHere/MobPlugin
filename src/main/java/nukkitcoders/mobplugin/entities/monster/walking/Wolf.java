@@ -27,6 +27,7 @@ import nukkitcoders.mobplugin.entities.monster.TameableMonster;
 import nukkitcoders.mobplugin.entities.monster.walking.Skeleton;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 /**
@@ -39,7 +40,7 @@ public class Wolf extends TameableMonster {
     private static final String NBT_KEY_ANGRY = "Angry";
 
     private static final String NBT_KEY_COLLAR_COLOR = "CollarColor";
-
+    protected int inLoveTicks = 0;
     private boolean angry;
     private int angryDuration;
     
@@ -50,6 +51,7 @@ public class Wolf extends TameableMonster {
     private int afterInWater = -1;
     
     private final Vector3 tempVector = new Vector3();
+
 
     public Wolf(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -62,12 +64,12 @@ public class Wolf extends TameableMonster {
 
     @Override
     public float getWidth() {
-        return 0.6f;
+        return this.isBaby() ? 0.3f : 0.6f;
     }
 
     @Override
     public float getHeight() {
-        return 0.8f;
+        return this.isBaby() ? 0.4f : 0.8f;
     }
 
     @Override
@@ -95,7 +97,7 @@ public class Wolf extends TameableMonster {
         }
 
         this.setMaxHealth(8);
-        this.setDamage(new float[] { 0, 3, 4, 6 });
+        this.setDamage(new float[]{0, 3, 4, 6});
     }
 
     @Override
@@ -209,6 +211,14 @@ public class Wolf extends TameableMonster {
             return true;
         } else if (this.hasOwner() && player.equals(this.getOwner()) && !this.isAngry()) {
             this.setSitting(!this.isSitting());
+        } else if ((item.getId() == Item.RAW_BEEF || item.getId() == Item.RAW_MUTTON || item.getId() == Item.RAW_PORKCHOP || item.getId() == Item.RAW_CHICKEN || item.getId() == Item.RAW_RABBIT) && !this.isBaby()) {
+            if (!player.isCreative() || player.isSpectator()) {
+                player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
+            }
+            this.level.addSound(this, Sound.RANDOM_EAT);
+            this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), item));
+            this.setInLove();
+            return true;
         }
         
         return super.onInteract(player, item, clickedPos);
@@ -384,8 +394,13 @@ public class Wolf extends TameableMonster {
     }
     
     @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
     public int getKillExperience() {
-        return this.isBaby() ? 0 : 3;
+        return this.isBaby() ? 1 : 3;
     }
 
     public void setCollarColor(DyeColor color) {
@@ -465,5 +480,48 @@ public class Wolf extends TameableMonster {
     @Override
     public boolean canTarget(Entity entity) {
         return true;
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        if (this.isInLove()) {
+            this.inLoveTicks -= tickDiff;
+            if (this.age % 20 == 0) {
+                for (int i = 0; i < 3; i++) {
+                    this.level.addParticle(new HeartParticle(this.add(Utils.rand(-1.0, 1.0), this.getMountedYOffset() + Utils.rand(-1.0, 1.0), Utils.rand(-1.0, 1.0))));
+                }
+                for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(10, 5, 10), this)) {
+                    if (!entity.isClosed() && this.getClass().isInstance(entity)) {
+                        Wolf wolf = (Wolf) entity;
+                        if (wolf.isInLove()) {
+                            this.inLoveTicks = 0;
+                            wolf.inLoveTicks = 0;
+                            this.spawnBaby();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return super.entityBaseTick(tickDiff);
+    }
+
+    protected void spawnBaby() {
+        try {
+            Wolf wolf = this.getClass().getConstructor(FullChunk.class, CompoundTag.class).newInstance(this.getChunk(), Entity.getDefaultNBT(this));
+            wolf.setBaby(true);
+            wolf.spawnToAll();
+            this.getLevel().dropExpOrb(this, Utils.rand(1, 7));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setInLove() {
+        this.inLoveTicks = 600;
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_INLOVE);
+    }
+
+    public boolean isInLove() {
+        return inLoveTicks > 0;
     }
 }

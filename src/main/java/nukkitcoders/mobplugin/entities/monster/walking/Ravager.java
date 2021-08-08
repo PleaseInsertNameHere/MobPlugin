@@ -2,14 +2,18 @@ package nukkitcoders.mobplugin.entities.monster.walking;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import nukkitcoders.mobplugin.entities.animal.walking.Villager;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Ravager extends WalkingMonster {
 
@@ -29,7 +33,7 @@ public class Ravager extends WalkingMonster {
         super.initEntity();
 
         this.setMaxHealth(100);
-        this.setDamage(new float[] { 0, 7, 12, 18 });
+        this.setDamage(new float[]{0, 14, 19, 24});
     }
 
     @Override
@@ -39,12 +43,12 @@ public class Ravager extends WalkingMonster {
 
     @Override
     public float getWidth() {
-        return 1.2f;
+        return 1.5f;
     }
 
     @Override
     public int getKillExperience() {
-        return 0;
+        return 20;
     }
 
     @Override
@@ -91,5 +95,41 @@ public class Ravager extends WalkingMonster {
 
             player.attack(new EntityDamageByEntityEvent(this, player, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage));
         }
+    }
+
+    @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
+    public Item[] getDrops() {
+        List<Item> drops = new ArrayList<>();
+        drops.add(Item.get(Item.SADDLE));
+
+        return drops.toArray(new Item[0]);
+    }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        if (followTarget == null || followTarget.isClosed()) {
+            for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(32, 32, 32), this)) {
+                if (entity instanceof IronGolem || (entity instanceof Villager && !((Villager) entity).isBaby())) {
+                    setFollowTarget(entity, true);
+                    setTarget(entity);
+                    break;
+                }
+            }
+        }
+        return super.entityBaseTick(tickDiff);
+    }
+
+    @Override
+    public boolean targetOption(EntityCreature creature, double distance) {
+        if (creature instanceof Player) {
+            Player player = (Player) creature;
+            return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && distance <= 144;
+        }
+        return creature.isAlive() && !creature.closed && distance <= 144;
     }
 }

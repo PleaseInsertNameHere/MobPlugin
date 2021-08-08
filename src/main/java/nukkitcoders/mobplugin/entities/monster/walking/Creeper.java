@@ -53,7 +53,7 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
 
     @Override
     public float getHeight() {
-        return 1.7f;
+        return 1.8f;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
         this.setMaxHealth(20);
 
         if (this.namedTag.contains("powered")) {
-           this.setPowered(this.namedTag.getBoolean("powered"));
+            this.setPowered(this.namedTag.getBoolean("powered"));
         }
     }
 
@@ -106,22 +106,25 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     }
 
     @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
 
-        for (int i = 0; i < Utils.rand(0, 2); i++) {
-            drops.add(Item.get(Item.GUNPOWDER, 0, 1));
-        }
+        drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2)));
 
         if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {
             Entity killer = ((EntityDamageByEntityEvent) this.lastDamageCause).getDamager();
 
-            if (killer instanceof EntitySkeleton || killer instanceof EntityStray) {
+            if (killer instanceof Skeleton || killer instanceof Stray) {
                 drops.add(Item.get(Utils.rand(500, 511), 0, 1));
             }
 
-            if (killer instanceof EntityCreeper) {
-                if (((EntityCreeper) killer).isPowered()) {
+            if (killer instanceof Creeper) {
+                if (((Creeper) killer).isPowered()) {
                     drops.add(Item.get(Item.SKULL, ItemSkull.CREEPER_HEAD, 1));
                 }
             }
@@ -170,10 +173,6 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     @Override
     public void onStruckByLightning(Entity entity) {
         if (this.attack(new EntityDamageByEntityEvent(entity, this, EntityDamageEvent.DamageCause.LIGHTNING, 5))) {
-            if (this.fireTicks < 160) {
-                this.setOnFire(8);
-            }
-
             this.setPowered(true);
         }
     }

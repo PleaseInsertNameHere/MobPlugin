@@ -14,14 +14,17 @@ import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.route.WalkerRouteFinder;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 
 public class Vindicator extends WalkingMonster {
 
     public static final int NETWORK_ID = 57;
 
     private boolean angry;
-    
+
     public Vindicator(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
         this.route = new WalkerRouteFinder(this);
@@ -39,7 +42,7 @@ public class Vindicator extends WalkingMonster {
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return 1.9f;
     }
 
     @Override
@@ -50,7 +53,7 @@ public class Vindicator extends WalkingMonster {
     @Override
     protected void initEntity() {
         super.initEntity();
-        this.setDamage(new float[] { 0, 2, 3, 4 });
+        this.setDamage(new float[]{0, 12, 18, 21});
         this.setMaxHealth(24);
     }
 
@@ -77,8 +80,25 @@ public class Vindicator extends WalkingMonster {
     }
 
     @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
     public Item[] getDrops() {
-        return new Item[]{Item.get(Item.EMERALD, 0, Utils.rand(0, 1))};
+        List<Item> drops = new ArrayList<>();
+
+        drops.add(Item.get(Item.EMERALD, 0, Utils.rand(0, 1)));
+        if (this.getDataFlag(DATA_FLAGS, DATA_FLAG_IS_ILLAGER_CAPTAIN)) {
+            Item illagerBanner = Item.get(Item.BANNER, 15);
+            illagerBanner.setCompoundTag(Base64.getDecoder().decode("CgAAAwQAVHlwZQEAAAAA"));
+            drops.add(illagerBanner);
+        }
+        if (Utils.rand(1, 200) <= 17) {
+            drops.add(Item.get(Item.IRON_AXE, Utils.rand(1, Item.get(Item.IRON_AXE).getMaxDurability()), 1));
+        }
+
+        return drops.toArray(new Item[0]);
     }
 
     @Override

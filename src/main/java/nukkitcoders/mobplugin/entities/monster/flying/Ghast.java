@@ -98,13 +98,15 @@ public class Ghast extends FlyingMonster {
     }
 
     @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
 
-        for (int i = 0; i < Utils.rand(0, 2); i++) {
-            drops.add(Item.get(Item.GUNPOWDER, 0, 1));
-        }
-
+        drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2)));
         drops.add(Item.get(Item.GHAST_TEAR, 0, Utils.rand(0, 1)));
 
         return drops.toArray(new Item[0]);

@@ -37,12 +37,12 @@ public class ZombiePigman extends WalkingMonster implements EntitySmite {
 
     @Override
     public float getWidth() {
-        return 0.6f;
+        return this.isBaby() ? 0.3f : 0.6f;
     }
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return this.isBaby() ? 0.95f : 1.9f;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ZombiePigman extends WalkingMonster implements EntitySmite {
         }
 
         this.fireProof = true;
-        this.setDamage(new float[] { 0, 5, 9, 13 });
+        this.setDamage(new float[]{0, 5, 8, 12});
         this.setMaxHealth(20);
     }
 
@@ -97,6 +97,11 @@ public class ZombiePigman extends WalkingMonster implements EntitySmite {
             }
             player.attack(new EntityDamageByEntityEvent(this, player, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage));
         }
+    }
+
+    @Override
+    public void jumpEntity(Entity player) {
+
     }
 
     public boolean isAngry() {
@@ -139,8 +144,8 @@ public class ZombiePigman extends WalkingMonster implements EntitySmite {
             drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 1)));
             drops.add(Item.get(Item.GOLD_NUGGET, 0, Utils.rand(0, 1)));
 
-            for (int i = 0; i < (Utils.rand(0, 101) <= 9 ? 1 : 0); i++) {
-                drops.add(Item.get(Item.GOLD_SWORD, Utils.rand(20, 30), 1));
+            if (Utils.rand(1, 40) == 1) {
+                drops.add(Item.get(Item.GOLD_SWORD, Utils.rand(1, Item.get(Item.GOLDEN_SWORD).getMaxDurability()), 1));
             }
         }
 
@@ -149,12 +154,12 @@ public class ZombiePigman extends WalkingMonster implements EntitySmite {
 
     @Override
     public int getKillExperience() {
-        return this.isBaby() ? 0 : 5;
+        return this.isBaby() ? 12 : 5;
     }
 
     @Override
     public String getName() {
-        return this.hasCustomName() ? this.getNameTag() : "Zombie Pigman";
+        return this.hasCustomName() ? this.getNameTag() : "Zombified Piglin";
     }
 
     @Override

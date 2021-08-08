@@ -13,12 +13,14 @@ import nukkitcoders.mobplugin.entities.animal.swimming.Squid;
 import nukkitcoders.mobplugin.entities.monster.SwimmingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Guardian extends SwimmingMonster {
 
     public static final int NETWORK_ID = 49;
-    private int laserChargeTick = 40;
+    private int laserChargeTick /*= 40*/;
     private long laserTargetEid = -1;
 
     public Guardian(FullChunk chunk, CompoundTag nbt) {
@@ -100,6 +102,11 @@ public class Guardian extends SwimmingMonster {
     }
 
     @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
     public boolean entityBaseTick(int tickDiff) {
         if (getServer().getDifficulty() == 0) {
             this.close();
@@ -108,11 +115,11 @@ public class Guardian extends SwimmingMonster {
 
         boolean hasUpdate = super.entityBaseTick(tickDiff);
         if (followTarget != null) {
-            if (laserTargetEid !=followTarget.getId()) {
+            if (laserTargetEid != followTarget.getId()) {
                 this.setDataProperty(new LongEntityData(Entity.DATA_TARGET_EID, laserTargetEid = followTarget.getId()));
                 laserChargeTick = 40;
             }
-            if (targetOption((EntityCreature) followTarget,this.distanceSquared(followTarget))) {
+            if (targetOption((EntityCreature) followTarget, this.distanceSquared(followTarget))) {
                 if (--laserChargeTick < 0) {
                     attackEntity(followTarget);
                     this.setDataProperty(new LongEntityData(Entity.DATA_TARGET_EID, laserTargetEid = -1));
@@ -128,7 +135,14 @@ public class Guardian extends SwimmingMonster {
 
     @Override
     public Item[] getDrops() {
-        return new Item[]{Item.get(Item.PRISMARINE_SHARD, 0, Utils.rand(0, 2))};
+        List<Item> drops = new ArrayList<>();
+        drops.add(Item.get(Item.PRISMARINE_SHARD, 0, Utils.rand(0, 2)));
+        int rnd = Utils.rand(1, 5);
+        if (rnd == 1 || rnd == 2) {
+            drops.add(Item.get(Item.PRISMARINE_CRYSTALS, 0, Utils.rand(0, 2)));
+
+        }
+        return drops.toArray(new Item[1]);
     }
 
     @Override

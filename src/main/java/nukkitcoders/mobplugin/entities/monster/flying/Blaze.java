@@ -28,7 +28,7 @@ public class Blaze extends FlyingMonster {
 
     @Override
     public float getWidth() {
-        return 0.6f;
+        return 0.5f;
     }
 
     @Override
@@ -76,6 +76,11 @@ public class Blaze extends FlyingMonster {
                 this.level.addSound(this, Sound.MOB_BLAZE_SHOOT);
             }
         }
+    }
+
+    @Override
+    public void jumpEntity(Entity player) {
+
     }
 
     @Override
