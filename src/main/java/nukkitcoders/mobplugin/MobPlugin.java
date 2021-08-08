@@ -288,24 +288,6 @@ public class MobPlugin extends PluginBase implements Listener {
         Entity.registerEntity("SlownessArrow", EntitySlownessArrow.class);
         Entity.registerEntity("Trident", EntityTrident.class);
     }
-    public static boolean isAnimalSpawningAllowedByTime(Level level) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return time < 13184 || time > 22800;
-    }
-
-    public static boolean isMobSpawningAllowedByTime(Level level) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return time > 13184 && time < 22800;
-    }
-
-    public static boolean isSpawningAllowedByLevel(Level level) {
-        return !MobPlugin.getInstance().config.mobSpawningDisabledWorlds.contains(level.getName().toLowerCase()) && level.getGameRules().getBoolean(GameRule.DO_MOB_SPAWNING);
-    }
-
-    public static boolean shouldMobBurn(Level level, BaseEntity entity) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return !entity.isOnFire() && !level.isRaining() && !entity.isBaby() && (time < 12567 || time > 23450) && !Utils.entityInsideWaterFast(entity) && level.canBlockSeeSky(entity);
-    }
 
     public static boolean isEntityCreationAllowed(Level level) {
         return !MobPlugin.getInstance().config.mobCreationDisabledWorlds.contains(level.getName().toLowerCase());

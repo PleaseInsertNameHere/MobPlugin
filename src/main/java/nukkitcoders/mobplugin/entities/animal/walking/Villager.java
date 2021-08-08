@@ -102,6 +102,7 @@ public class Villager extends WalkingAnimal {
     @Override
     public boolean canDespawn() {
         return false;
+    }
     @Override  
     public void kill() {
         if (this.isAlive()) {

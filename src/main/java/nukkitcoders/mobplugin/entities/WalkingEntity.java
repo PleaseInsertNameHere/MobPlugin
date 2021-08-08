@@ -25,7 +25,6 @@ public abstract class WalkingEntity extends BaseEntity {
     protected RouteFinder route = null;
 
     protected final boolean isDrowned = this instanceof Drowned;
-    protected RouteFinder route = null;
 
     public WalkingEntity(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);

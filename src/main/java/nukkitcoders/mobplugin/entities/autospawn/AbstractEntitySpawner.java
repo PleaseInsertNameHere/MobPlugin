@@ -25,7 +25,7 @@ public abstract class AbstractEntitySpawner implements IEntitySpawner {
     @Override
     public void spawn() {
         for (Player player : server.getOnlinePlayers().values()) {
-            if (MobPlugin.isSpawningAllowedByLevel(player.getLevel())) {
+            if (MobPlugin.isAnimalSpawningAllowedByTime(player.getLevel())) {
                 if (isSpawnAllowedByDifficulty()) {
                     spawnTo(player);
                 }

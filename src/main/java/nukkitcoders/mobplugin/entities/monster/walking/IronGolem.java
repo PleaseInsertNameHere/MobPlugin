@@ -146,6 +146,7 @@ public class IronGolem extends WalkingMonster {
     @Override
     public boolean canTarget(Entity entity) {
         return entity.getId() == this.isAngryTo;
+    }
     @Override  
     public boolean entityBaseTick(int tickDiff) {
         if (followTarget == null || followTarget.isClosed()) {
