@@ -3,6 +3,7 @@ package nukkitcoders.mobplugin.entities.monster.walking;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityArthropod;
+import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
@@ -47,7 +48,21 @@ public class Silverfish extends WalkingMonster implements EntityArthropod {
         super.initEntity();
 
         this.setMaxHealth(8);
-        this.setDamage(new float[] { 0, 1, 1, 1 });
+        this.setDamage(new float[]{0, 1, 1, 1.5f});
+    }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        if (followTarget == null || followTarget.isClosed()) {
+            for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(32, 32, 32), this)) {
+                if (entity instanceof IronGolem || entity instanceof SnowGolem) {
+                    setFollowTarget(entity, true);
+                    setTarget(entity);
+                    break;
+                }
+            }
+        }
+        return super.entityBaseTick(tickDiff);
     }
 
     @Override
@@ -80,5 +95,14 @@ public class Silverfish extends WalkingMonster implements EntityArthropod {
     @Override
     public int getKillExperience() {
         return 5;
+    }
+
+    @Override
+    public boolean targetOption(EntityCreature creature, double distance) {
+        if (creature instanceof Player) {
+            Player player = (Player) creature;
+            return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && distance <= 144;
+        }
+        return creature.isAlive() && !creature.closed && distance <= 144;
     }
 }

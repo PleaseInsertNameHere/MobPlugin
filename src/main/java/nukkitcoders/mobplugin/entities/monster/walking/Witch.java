@@ -41,7 +41,7 @@ public class Witch extends WalkingMonster {
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return 1.9f;
     }
 
     @Override
@@ -118,8 +118,8 @@ public class Witch extends WalkingMonster {
         if (Utils.rand(1, 4) == 1) {
             drops.add(Item.get(Item.STICK, 0, Utils.rand(0, 2)));
         }
-
-        if (Utils.rand(1, 3) == 1) {
+        int rnd = Utils.rand(0, 2);
+        for (int i = 0; i <= rnd; i++) {
             switch (Utils.rand(1, 6)) {
                 case 1:
                     drops.add(Item.get(Item.BOTTLE, 0, Utils.rand(0, 2)));
@@ -153,5 +153,19 @@ public class Witch extends WalkingMonster {
     @Override
     public int nearbyDistanceMultiplier() {
         return 8;
+    }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        if (followTarget == null || followTarget.isClosed()) {
+            for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(64, 64, 64), this)) {
+                if (entity instanceof SnowGolem || entity instanceof IronGolem) {
+                    setFollowTarget(entity, true);
+                    setTarget(entity);
+                    break;
+                }
+            }
+        }
+        return super.entityBaseTick(tickDiff);
     }
 }

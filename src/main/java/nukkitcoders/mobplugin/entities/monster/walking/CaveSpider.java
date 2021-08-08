@@ -48,7 +48,7 @@ public class CaveSpider extends Spider implements EntityArthropod {
         super.initEntity();
 
         this.setMaxHealth(12);
-        this.setDamage(new float[] { 0, 2, 3, 3 });
+        this.setDamage(new float[]{0, 2, 2, 3});
     }
 
     @Override
@@ -82,7 +82,7 @@ public class CaveSpider extends Spider implements EntityArthropod {
 
         drops.add(Item.get(Item.STRING, 0, Utils.rand(0, 2)));
 
-        for (int i = 0; i < (Utils.rand(0, 2) == 0 ? 1 : 0); i++) {
+        if (Utils.rand(1, 3) == 1) {
             drops.add(Item.get(Item.SPIDER_EYE, 0, 1));
         }
 

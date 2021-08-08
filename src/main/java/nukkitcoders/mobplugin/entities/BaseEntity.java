@@ -14,10 +14,8 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.MoveEntityAbsolutePacket;
 import cn.nukkit.network.protocol.SetEntityMotionPacket;
 import nukkitcoders.mobplugin.MobPlugin;
-import nukkitcoders.mobplugin.entities.animal.swimming.Axolotl;
 import nukkitcoders.mobplugin.entities.monster.Monster;
 import nukkitcoders.mobplugin.entities.monster.flying.EnderDragon;
-import nukkitcoders.mobplugin.entities.monster.walking.Goat;
 import nukkitcoders.mobplugin.utils.Utils;
 import org.apache.commons.math3.util.FastMath;
 
@@ -26,23 +24,42 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class BaseEntity extends EntityCreature implements EntityAgeable {
 
     public int stayTime = 0;
+    public Item[] armor;
     protected int moveTime = 0;
-    private int airTicks = 0;
+    protected int noRotateTicks = 0;
     protected float moveMultiplier = 1.0f;
     protected Vector3 target = null;
     protected Entity followTarget = null;
+    protected int attackDelay = 0;
+    protected int jumpDelay = 0;
+    private int airTicks = 0;
     private boolean baby = false;
     private boolean movement = true;
     private boolean friendly = false;
-    protected int attackDelay = 0;
-    protected int jumpDelay = 0;
-    public Item[] armor;
 
     public BaseEntity(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
 
         this.setHealth(this.getMaxHealth());
         this.setAirTicks(300);
+    }
+
+    public static void setProjectileMotion(Entity projectile, double pitch, double yawR, double pitchR, double speed) {
+        double verticalMultiplier = Math.cos(pitchR);
+        double x = verticalMultiplier * Math.sin(-yawR);
+        double z = verticalMultiplier * Math.cos(yawR);
+        double y = Math.sin(-(FastMath.toRadians(pitch)));
+        double magnitude = Math.sqrt(x * x + y * y + z * z);
+        if (magnitude > 0) {
+            x += (x * (speed - magnitude)) / magnitude;
+            y += (y * (speed - magnitude)) / magnitude;
+            z += (z * (speed - magnitude)) / magnitude;
+        }
+        ThreadLocalRandom rand = ThreadLocalRandom.current();
+        x += rand.nextGaussian() * 0.007499999832361937 * 6;
+        y += rand.nextGaussian() * 0.007499999832361937 * 6;
+        z += rand.nextGaussian() * 0.007499999832361937 * 6;
+        projectile.setMotion(new Vector3(x, y, z));
     }
 
     public abstract Vector3 updateMove(int tickDiff);
@@ -53,20 +70,20 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
         return this.friendly;
     }
 
-    public boolean isMovement() {
-        return this.movement;
-    }
-
-    public boolean isKnockback() {
-        return this.attackTime > 0;
-    }
-
     public void setFriendly(boolean bool) {
         this.friendly = bool;
     }
 
+    public boolean isMovement() {
+        return this.movement;
+    }
+
     public void setMovement(boolean value) {
         this.movement = value;
+    }
+
+    public boolean isKnockback() {
+        return this.attackTime > 0;
     }
 
     public double getSpeed() {
@@ -94,6 +111,13 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
         }
     }
 
+    public void setFollowTarget(Entity target) {
+        this.followTarget = target;
+        this.moveTime = 0;
+        this.stayTime = 0;
+        this.target = null;
+    }
+
     public Vector3 getTargetVector() {
         if (this.followTarget != null) {
             return this.followTarget;
@@ -102,13 +126,6 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
         } else {
             return null;
         }
-    }
-
-    public void setFollowTarget(Entity target) {
-        this.followTarget = target;
-        this.moveTime = 0;
-        this.stayTime = 0;
-        this.target = null;
     }
 
     @Override
@@ -178,8 +195,12 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
             this.attackDelay++;
         }
 
-        if(this instanceof Monster && this.jumpDelay < 600) {
+        if (this instanceof Monster && this.jumpDelay < 600) {
             this.jumpDelay++;
+        }
+
+        if (this.noRotateTicks > 0) {
+            noRotateTicks--;
         }
 
         return true;
@@ -515,24 +536,6 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
         this.isCollidedHorizontally = (movX != dx || movZ != dz);
         this.isCollided = (this.isCollidedHorizontally || this.isCollidedVertically);
         this.onGround = (movY != dy && movY < 0);
-    }
-
-    public static void setProjectileMotion(Entity projectile, double pitch, double yawR, double pitchR, double speed) {
-        double verticalMultiplier = Math.cos(pitchR);
-        double x = verticalMultiplier * Math.sin(-yawR);
-        double z = verticalMultiplier * Math.cos(yawR);
-        double y = Math.sin(-(FastMath.toRadians(pitch)));
-        double magnitude = Math.sqrt(x * x + y * y + z * z);
-        if (magnitude > 0) {
-            x += (x * (speed - magnitude)) / magnitude;
-            y += (y * (speed - magnitude)) / magnitude;
-            z += (z * (speed - magnitude)) / magnitude;
-        }
-        ThreadLocalRandom rand = ThreadLocalRandom.current();
-        x += rand.nextGaussian() * 0.007499999832361937 * 6;
-        y += rand.nextGaussian() * 0.007499999832361937 * 6;
-        z += rand.nextGaussian() * 0.007499999832361937 * 6;
-        projectile.setMotion(new Vector3(x, y, z));
     }
 
     @Override

@@ -21,12 +21,12 @@ public class GlowSquidSpawner extends AbstractEntitySpawner {
         final int blockId = level.getBlockIdAt((int) pos.x, (int) pos.y, (int) pos.z);
 
         if (blockId != Block.WATER && blockId != Block.STILL_WATER) {
-        } else if (biomeId != 0) {
+        } else if (!(biomeId == 10 || biomeId == 24 || biomeId <= 50 && biomeId >= 42)) {
         } else if (pos.y > 255 || pos.y < 1) {
         } else if (MobPlugin.isAnimalSpawningAllowedByTime(level)) {
             int b = level.getBlockIdAt((int) pos.x, (int) (pos.y -1), (int) pos.z);
             if (b == Block.WATER || b == Block.STILL_WATER) {
-                this.spawnTask.createEntity("Glow_squid", pos.add(0, -1, 0));
+                this.spawnTask.createEntity("GlowSquid", pos.add(0, -1, 0));
             }
         }
     }

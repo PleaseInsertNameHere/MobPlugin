@@ -3,7 +3,6 @@ package nukkitcoders.mobplugin.entities.monster;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.data.ByteEntityData;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -134,10 +133,6 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
         if (difficulty >= 1 && difficulty <= 3) {
             this.maxDamage[difficulty] = Math.max(damage, this.getMinDamage(difficulty));
         }
-    }
-
-    public void setRamming(int b) {
-        this.setDataProperty(new ByteEntityData(DATA_FLAG_RAM_ATTACK, b));
     }
 
     @Override

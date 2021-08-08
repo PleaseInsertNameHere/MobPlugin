@@ -7,11 +7,13 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import nukkitcoders.mobplugin.entities.BaseEntity;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.route.WalkerRouteFinder;
 import nukkitcoders.mobplugin.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,7 +38,7 @@ public class Evoker extends WalkingMonster {
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return 1.9f;
     }
 
     @Override
@@ -47,12 +49,12 @@ public class Evoker extends WalkingMonster {
     @Override
     protected void initEntity() {
         super.initEntity();
-        this.setDamage(new float[] { 0, 2, 3, 4 });
+        this.setDamage(new float[] { 0, 3, 6, 9 });
         this.setMaxHealth(24);
     }
 
     @Override
-    public void attackEntity(Entity player) {
+    public void attackEntity(Entity player) { // Todo: Evoker Fangs + Vex Spawning
         if (this.attackDelay > 23 && player.distanceSquared(this) <= 1) {
             this.attackDelay = 0;
             HashMap<EntityDamageEvent.DamageModifier, Float> damage = new HashMap<>();
@@ -84,6 +86,9 @@ public class Evoker extends WalkingMonster {
 
         drops.add(Item.get(Item.EMERALD, 0, Utils.rand(0, 1)));
         drops.add(Item.get(Item.TOTEM, 0, 1));
+        Item illagerBanner = Item.get(Item.BANNER, 15);
+        illagerBanner.setCompoundTag(Base64.getDecoder().decode("CgAAAwQAVHlwZQEAAAAA"));
+        drops.add(illagerBanner);
 
         return drops.toArray(new Item[0]);
     }

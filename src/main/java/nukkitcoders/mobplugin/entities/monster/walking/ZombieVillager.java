@@ -3,14 +3,20 @@ package nukkitcoders.mobplugin.entities.monster.walking;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntitySmite;
+import cn.nukkit.entity.passive.EntityVillager;
+import cn.nukkit.event.entity.CreatureSpawnEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.EntityEventPacket;
+import cn.nukkit.potion.Effect;
 import nukkitcoders.mobplugin.MobPlugin;
+import nukkitcoders.mobplugin.entities.animal.walking.Villager;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.route.WalkerRouteFinder;
 import nukkitcoders.mobplugin.utils.Utils;
@@ -22,6 +28,7 @@ import java.util.List;
 public class ZombieVillager extends WalkingMonster implements EntitySmite {
 
     public static final int NETWORK_ID = 44;
+    private boolean isHealing = false;
 
     public ZombieVillager(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -35,12 +42,12 @@ public class ZombieVillager extends WalkingMonster implements EntitySmite {
 
     @Override
     public float getWidth() {
-        return 0.6f;
+        return this.isBaby() ? 0.3f : 0.6f;
     }
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return this.isBaby() ? 0.95f : 1.9f;
     }
 
     @Override
@@ -52,7 +59,7 @@ public class ZombieVillager extends WalkingMonster implements EntitySmite {
     public void initEntity() {
         super.initEntity();
 
-        this.setDamage(new float[] { 0, 3, 4, 6 });
+        this.setDamage(new float[]{0, 2.5f, 3, 4.5f});
         this.setMaxHealth(20);
     }
 
@@ -100,16 +107,36 @@ public class ZombieVillager extends WalkingMonster implements EntitySmite {
             this.setOnFire(100);
         }
 
+        if (followTarget == null || followTarget.isClosed()) {
+            for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(16, 16, 16), this)) {
+                if (entity instanceof Villager) {
+                    setFollowTarget(entity, true);
+                    setTarget(entity);
+                    break;
+                }
+            }
+        }
+
         return hasUpdate;
     }
 
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        drops.add(Item.get(Item.ROTTEN_FLESH, 0, 1));
+        if (Utils.rand(1, 40) == 1) {
+            switch (Utils.rand(1, 3)) {
+                case 1:
+                    drops.add(Item.get(Item.IRON_INGOT));
+                    break;
 
-        if (!this.isBaby()) {
-            for (int i = 0; i < Utils.rand(0, 2); i++) {
-                drops.add(Item.get(Item.ROTTEN_FLESH, 0, 1));
+                case 2:
+                    drops.add(Item.get(Item.CARROT));
+                    break;
+
+                case 3:
+                    drops.add(Item.get(Item.POTATO));
+                    break;
             }
         }
 
@@ -118,11 +145,78 @@ public class ZombieVillager extends WalkingMonster implements EntitySmite {
 
     @Override
     public int getKillExperience() {
-        return this.isBaby() ? 0 : 5;
+        return this.isBaby() ? 12 : 5;
     }
 
     @Override
     public String getName() {
         return this.hasCustomName() ? this.getNameTag() : "Zombie Villager";
+    }
+
+    @Override
+    public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
+        if (item.getId() == Item.GOLDEN_APPLE && this.hasEffect(Effect.WEAKNESS) && !this.isHealing) {
+            EntityEventPacket pk = new EntityEventPacket();
+            pk.eid = this.getId();
+            pk.event = 16;
+            Server.broadcastPacket(this.getViewers().values(), pk);
+            this.isHealing = true;
+            this.getEffects().clear();
+            int ticks = Utils.rand(20 * 60 * 3, 20 * 60 * 5);
+            switch (this.getServer().getDifficulty()) {
+                case 0:
+                    this.addEffect(Effect.getEffect(Effect.STRENGTH).setVisible(true).setDuration(ticks).setAmplifier(1));
+                    break;
+
+                case 1:
+                    this.addEffect(Effect.getEffect(Effect.STRENGTH).setVisible(true).setDuration(ticks).setAmplifier(2));
+                    break;
+
+                case 2:
+                    this.addEffect(Effect.getEffect(Effect.STRENGTH).setVisible(true).setDuration(ticks).setAmplifier(3));
+                    break;
+            }
+
+            Server.getInstance().getScheduler().scheduleDelayedTask(MobPlugin.getInstance(), new Runnable() {
+                @Override
+                public void run() {
+                    Entity ent = Entity.createEntity("Villager", ZombieVillager.this);
+                    if (ent != null) {
+                        CreatureSpawnEvent cse = new CreatureSpawnEvent(EntityVillager.NETWORK_ID, ZombieVillager.this, ent.namedTag, CreatureSpawnEvent.SpawnReason.CURED);
+                        ZombieVillager.this.getServer().getPluginManager().callEvent(cse);
+
+                        if (cse.isCancelled()) {
+                            ent.close();
+                            return;
+                        }
+
+                        ent.yaw = ZombieVillager.this.yaw;
+                        ent.pitch = ZombieVillager.this.pitch;
+                        ent.setImmobile(ZombieVillager.this.isImmobile());
+                        if (ZombieVillager.this.hasCustomName()) {
+                            ent.setNameTag(ZombieVillager.this.getNameTag());
+                            ent.setNameTagVisible(ZombieVillager.this.isNameTagVisible());
+                            ent.setNameTagAlwaysVisible(ZombieVillager.this.isNameTagAlwaysVisible());
+                        }
+
+                        if (!ZombieVillager.this.isClosed()) {
+                            ZombieVillager.this.close();
+                            ZombieVillager.this.isHealing = false;
+                            ent.spawnToAll();
+                        }
+                    }
+                }
+            }, ticks);
+        }
+        return super.onInteract(player, item, clickedPos);
+    }
+
+    @Override
+    public boolean targetOption(EntityCreature creature, double distance) {
+        if (creature instanceof Player) {
+            Player player = (Player) creature;
+            return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && distance <= 100;
+        }
+        return creature.isAlive() && !creature.closed && distance <= 100;
     }
 }

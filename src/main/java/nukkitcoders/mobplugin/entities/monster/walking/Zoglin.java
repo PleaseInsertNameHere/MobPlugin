@@ -2,28 +2,34 @@ package nukkitcoders.mobplugin.entities.monster.walking;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntitySmite;
+import cn.nukkit.entity.item.EntityArmorStand;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import nukkitcoders.mobplugin.entities.BaseEntity;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
+import nukkitcoders.mobplugin.entities.monster.flying.Ghast;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Zoglin extends WalkingMonster implements EntitySmite {
 
     public final static int NETWORK_ID = 126;
 
+    public Zoglin(FullChunk chunk, CompoundTag nbt) {
+        super(chunk, nbt);
+    }
+
     @Override
     public int getNetworkId() {
         return NETWORK_ID;
-    }
-
-    public Zoglin(FullChunk chunk, CompoundTag nbt) {
-        super(chunk, nbt);
     }
 
     @Override
@@ -35,17 +41,21 @@ public class Zoglin extends WalkingMonster implements EntitySmite {
     protected void initEntity() {
         super.initEntity();
         this.setMaxHealth(40);
-        this.setDamage(new float[]{0, 2, 3, 4});
+        if (this.isBaby()) {
+            this.setDamage(new float[]{0, 0.5f, 0.5f, 0.75f});
+        } else {
+            this.setDamage(new float[]{0, Utils.rand(3, 5), Utils.rand(3, 8), Utils.rand(4.5f, 12)});
+        }
     }
 
     @Override
     public float getWidth() {
-        return 0.9f;
+        return this.isBaby() ? 0.425f : 0.9f;
     }
 
     @Override
     public float getHeight() {
-        return 0.9f;
+        return this.isBaby() ? 0.425f : 0.9f;
     }
 
     @Override
@@ -72,5 +82,37 @@ public class Zoglin extends WalkingMonster implements EntitySmite {
     @Override
     public void jumpEntity(Entity player) {
 
+    }
+
+    @Override
+    public Item[] getDrops() {
+        List<Item> drops = new ArrayList<>();
+        drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(1, 3)));
+        return drops.toArray(new Item[0]);
+    }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+
+        if (followTarget == null || followTarget.isClosed()) {
+            for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(32, 32, 32), this)) {
+                if ((entity instanceof BaseEntity || entity instanceof EntityArmorStand) && !(entity instanceof Creeper || entity instanceof Ghast || entity instanceof Zoglin)) {
+                    if (!(entity instanceof EntityArmorStand))
+                        setFollowTarget(entity, true);
+                    setTarget(entity);
+                    break;
+                }
+            }
+        }
+        return super.entityBaseTick(tickDiff);
+    }
+
+    @Override
+    public boolean targetOption(EntityCreature creature, double distance) {
+
+        if (creature instanceof Player) {
+            return super.targetOption(creature, distance);
+        }
+        return creature.isAlive() && !creature.closed && distance <= 144;
     }
 }
