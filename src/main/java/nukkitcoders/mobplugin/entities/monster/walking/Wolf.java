@@ -18,15 +18,14 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.EntityEventPacket;
 import cn.nukkit.utils.DyeColor;
-
 import nukkitcoders.mobplugin.entities.animal.jumping.Rabbit;
 import nukkitcoders.mobplugin.entities.animal.swimming.Turtle;
 import nukkitcoders.mobplugin.entities.animal.walking.Fox;
 import nukkitcoders.mobplugin.entities.animal.walking.Sheep;
 import nukkitcoders.mobplugin.entities.monster.TameableMonster;
-import nukkitcoders.mobplugin.entities.monster.walking.Skeleton;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 /**
@@ -39,17 +38,13 @@ public class Wolf extends TameableMonster {
     private static final String NBT_KEY_ANGRY = "Angry";
 
     private static final String NBT_KEY_COLLAR_COLOR = "CollarColor";
-
+    private final Vector3 tempVector = new Vector3();
+    protected int inLoveTicks = 0;
     private boolean angry;
     private int angryDuration;
-    
-    protected int inLoveTicks = 0;
-    
     private DyeColor collarColor = DyeColor.RED;
-    
     private int afterInWater = -1;
-    
-    private final Vector3 tempVector = new Vector3();
+
 
     public Wolf(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -62,12 +57,12 @@ public class Wolf extends TameableMonster {
 
     @Override
     public float getWidth() {
-        return 0.6f;
+        return this.isBaby() ? 0.3f : 0.6f;
     }
 
     @Override
     public float getHeight() {
-        return 0.8f;
+        return this.isBaby() ? 0.4f : 0.8f;
     }
 
     @Override
@@ -78,7 +73,7 @@ public class Wolf extends TameableMonster {
     @Override
     protected void initEntity() {
         super.initEntity();
-        
+
         this.setFriendly(true);
 
         if (this.namedTag.contains(NBT_KEY_ANGRY)) {
@@ -95,7 +90,7 @@ public class Wolf extends TameableMonster {
         }
 
         this.setMaxHealth(8);
-        this.setDamage(new float[] { 0, 3, 4, 6 });
+        this.setDamage(new float[]{0, 3, 4, 6});
     }
 
     @Override
@@ -111,11 +106,11 @@ public class Wolf extends TameableMonster {
         if (!creature.isAlive() || creature.closed || distance > 256) {
             return false;
         }
-        
+
         if (this.isAngry() && this.isAngryTo == creature.getId()) {
             return true;
         }
-        
+
         if (creature instanceof Player) {
             if (distance <= 64 && this.isBeggingItem(((Player) creature).getInventory().getItemInHand())) {
                 // TODO: Begging
@@ -131,13 +126,13 @@ public class Wolf extends TameableMonster {
                 }
             }
         }
-        
+
         if (!this.hasOwner() && distance <= 256 && (
-            (creature instanceof Skeleton && !Utils.entityInsideWaterFast(creature)) ||
-            creature instanceof Sheep ||
-            creature instanceof Rabbit ||
-            creature instanceof Fox ||
-            (creature instanceof Turtle && ((Turtle) creature).isBaby() && !Utils.entityInsideWaterFast(creature))
+                (creature instanceof Skeleton && !Utils.entityInsideWaterFast(creature)) ||
+                        creature instanceof Sheep ||
+                        creature instanceof Rabbit ||
+                        creature instanceof Fox ||
+                        (creature instanceof Turtle && ((Turtle) creature).isBaby() && !Utils.entityInsideWaterFast(creature))
         )) {
             this.isAngryTo = creature.getId();
             this.setAngry(true);
@@ -147,7 +142,7 @@ public class Wolf extends TameableMonster {
             this.setAngry(true);
             return true;
         }
-        
+
         return false;
     }
 
@@ -165,7 +160,7 @@ public class Wolf extends TameableMonster {
     @Override
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
         int healable = this.getHealableItem(item);
-        
+
         if (item.getId() == ItemID.BONE) {
             if (!this.hasOwner() && !this.isAngry()) {
                 player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
@@ -174,16 +169,16 @@ public class Wolf extends TameableMonster {
                     packet.eid = this.getId();
                     packet.event = EntityEventPacket.TAME_SUCCESS;
                     player.dataPacket(packet);
-                    
+
                     this.setMaxHealth(20);
                     this.setHealth(20);
                     this.setOwner(player);
                     this.setCollarColor(DyeColor.RED);
                     this.setRoute(null);
                     this.saveNBT();
-                    
+
                     this.getLevel().dropExpOrb(this, Utils.rand(1, 7));
-                    
+
                     return true;
                 } else {
                     EntityEventPacket packet = new EntityEventPacket();
@@ -201,16 +196,24 @@ public class Wolf extends TameableMonster {
             this.getLevel().addSound(this, Sound.RANDOM_EAT);
             this.getLevel().addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), Item.get(item.getId(), 0, 1)));
             this.setInLove();
-            
+
             if (healable != 0) {
                 this.setHealth(Math.max(this.getMaxHealth(), this.getHealth() + healable));
             }
-            
+
             return true;
         } else if (this.hasOwner() && player.equals(this.getOwner()) && !this.isAngry()) {
             this.setSitting(!this.isSitting());
+        } else if ((item.getId() == Item.RAW_BEEF || item.getId() == Item.RAW_MUTTON || item.getId() == Item.RAW_PORKCHOP || item.getId() == Item.RAW_CHICKEN || item.getId() == Item.RAW_RABBIT) && !this.isBaby()) {
+            if (!player.isCreative() || player.isSpectator()) {
+                player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
+            }
+            this.level.addSound(this, Sound.RANDOM_EAT);
+            this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), item));
+            this.setInLove();
+            return true;
         }
-        
+
         return super.onInteract(player, item, clickedPos);
     }
 
@@ -237,13 +240,13 @@ public class Wolf extends TameableMonster {
     @Override
     public void attackEntity(Entity entity) {
         if (entity instanceof Player && (
-            (!this.isAngry() && this.isBeggingItem(((Player) entity).getInventory().getItemInHand())) ||
-            (this.hasOwner() && entity.equals(this.getOwner()))
-            )
+                (!this.isAngry() && this.isBeggingItem(((Player) entity).getInventory().getItemInHand())) ||
+                        (this.hasOwner() && entity.equals(this.getOwner()))
+        )
         ) {
             return;
         }
-        
+
         if (this.attackDelay > 23 && this.distanceSquared(entity) < 1.5) {
             this.attackDelay = 0;
             HashMap<EntityDamageEvent.DamageModifier, Float> damage = new HashMap<>();
@@ -260,67 +263,87 @@ public class Wolf extends TameableMonster {
                 damage.put(EntityDamageEvent.DamageModifier.ARMOR,
                         (float) (damage.getOrDefault(EntityDamageEvent.DamageModifier.ARMOR, 0f) - Math.floor(damage.getOrDefault(EntityDamageEvent.DamageModifier.BASE, 1f) * points * 0.04)));
             }
-            
+
             this.setMotion(tempVector.setComponents(0, this.getGravity() * 6, 0)); // TODO: Jump before attack
-            
+
             entity.attack(new EntityDamageByEntityEvent(this, entity, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage));
         }
     }
-    
+
     @Override
     public boolean entityBaseTick(int tickDiff) {
         boolean hasUpdate = super.entityBaseTick(tickDiff);
-        
+
         if (this.angryDuration == 1) {
             this.setAngry(false);
         } else if (this.angryDuration > 0) {
             this.angryDuration--;
         }
-        
+
         if (this.isInLove()) {
             this.inLoveTicks -= tickDiff;
             if (this.age % 20 == 0) {
                 for (int i = 0; i < 3; i++) {
-                    this.getLevel().addParticle(new HeartParticle(this.add(Utils.rand(-1.0,1.0), this.getMountedYOffset() + Utils.rand(-1.0,1.0), Utils.rand(-1.0, 1.0))));
+                    this.getLevel().addParticle(new HeartParticle(this.add(Utils.rand(-1.0, 1.0), this.getMountedYOffset() + Utils.rand(-1.0, 1.0), Utils.rand(-1.0, 1.0))));
                 }
             }
         }
-        
+
         if (Utils.entityInsideWaterFast(this)) {
             afterInWater = 0;
         } else if (afterInWater != -1) {
             afterInWater++;
         }
-        
+
         if (afterInWater > 60) {
             afterInWater = -1;
-            
+
             this.stayTime = 40;
-            
+
             EntityEventPacket packet = new EntityEventPacket();
             packet.eid = this.getId();
             packet.event = EntityEventPacket.SHAKE_WET;
             Server.broadcastPacket(this.getViewers().values(), packet);
         }
-        
+
+        if (this.isInLove()) {
+            this.inLoveTicks -= tickDiff;
+            if (this.age % 20 == 0) {
+                for (int i = 0; i < 3; i++) {
+                    this.level.addParticle(new HeartParticle(this.add(Utils.rand(-1.0, 1.0), this.getMountedYOffset() + Utils.rand(-1.0, 1.0), Utils.rand(-1.0, 1.0))));
+                }
+                for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(10, 5, 10), this)) {
+                    if (!entity.isClosed() && this.getClass().isInstance(entity)) {
+                        Wolf wolf = (Wolf) entity;
+                        if (wolf.isInLove()) {
+                            this.inLoveTicks = 0;
+                            wolf.inLoveTicks = 0;
+                            this.spawnBaby();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         return hasUpdate;
     }
-    
+
     public void setInLove() {
         this.inLoveTicks = 600;
         this.setDataFlag(DATA_FLAGS, DATA_FLAG_INLOVE);
     }
-    
+
     public boolean isInLove() {
         return inLoveTicks > 0;
     }
-    
+
     @Override
     protected void checkTarget() {
         if (this.isKnockback()) {
             return;
         }
-        
+
         if (!this.isSitting() && this.hasOwner() && this.distanceSquared(this.getOwner()) > 144) {
             this.setAngry(false);
             this.setRoute(null);
@@ -344,7 +367,7 @@ public class Wolf extends TameableMonster {
             }
 
             EntityCreature creature = (EntityCreature) entity;
-            
+
             double distance = this.distanceSquared(creature);
             if (distance > near || !this.targetOption(creature, distance)) {
                 continue;
@@ -382,10 +405,15 @@ public class Wolf extends TameableMonster {
             this.target = this.add(Utils.rand() ? x : -x, 0, Utils.rand() ? z : -z);
         }
     }
-    
+
+    @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
     @Override
     public int getKillExperience() {
-        return this.isBaby() ? 0 : 3;
+        return this.isBaby() ? 1 : 3;
     }
 
     public void setCollarColor(DyeColor color) {
@@ -393,42 +421,42 @@ public class Wolf extends TameableMonster {
         this.setDataProperty(new ByteEntityData(DATA_COLOUR, color.getWoolData()));
         this.collarColor = color;
     }
-    
+
     @Override
     public boolean canDespawn() {
         if (this.hasOwner(false)) return false;
         return super.canDespawn();
     }
-    
+
     public boolean isBeggingItem(Item item) {
         return item.getId() == ItemID.BONE ||
-            item.getId() == ItemID.RAW_CHICKEN ||
-            item.getId() == ItemID.COOKED_CHICKEN ||
-            item.getId() == ItemID.RAW_BEEF ||
-            item.getId() == ItemID.COOKED_BEEF ||
-            item.getId() == ItemID.RAW_MUTTON ||
-            item.getId() == ItemID.COOKED_MUTTON ||
-            item.getId() == ItemID.RAW_PORKCHOP ||
-            item.getId() == ItemID.COOKED_PORKCHOP ||
-            item.getId() == ItemID.RAW_RABBIT ||
-            item.getId() == ItemID.COOKED_RABBIT ||
-            item.getId() == ItemID.ROTTEN_FLESH;
+                item.getId() == ItemID.RAW_CHICKEN ||
+                item.getId() == ItemID.COOKED_CHICKEN ||
+                item.getId() == ItemID.RAW_BEEF ||
+                item.getId() == ItemID.COOKED_BEEF ||
+                item.getId() == ItemID.RAW_MUTTON ||
+                item.getId() == ItemID.COOKED_MUTTON ||
+                item.getId() == ItemID.RAW_PORKCHOP ||
+                item.getId() == ItemID.COOKED_PORKCHOP ||
+                item.getId() == ItemID.RAW_RABBIT ||
+                item.getId() == ItemID.COOKED_RABBIT ||
+                item.getId() == ItemID.ROTTEN_FLESH;
     }
-    
+
     public boolean isBreedingItem(Item item) {
         return item.getId() == ItemID.RAW_CHICKEN ||
-            item.getId() == ItemID.COOKED_CHICKEN ||
-            item.getId() == ItemID.RAW_BEEF ||
-            item.getId() == ItemID.COOKED_BEEF ||
-            item.getId() == ItemID.RAW_MUTTON ||
-            item.getId() == ItemID.COOKED_MUTTON ||
-            item.getId() == ItemID.RAW_PORKCHOP ||
-            item.getId() == ItemID.COOKED_PORKCHOP ||
-            item.getId() == ItemID.RAW_RABBIT ||
-            item.getId() == ItemID.COOKED_RABBIT ||
-            item.getId() == ItemID.ROTTEN_FLESH;
+                item.getId() == ItemID.COOKED_CHICKEN ||
+                item.getId() == ItemID.RAW_BEEF ||
+                item.getId() == ItemID.COOKED_BEEF ||
+                item.getId() == ItemID.RAW_MUTTON ||
+                item.getId() == ItemID.COOKED_MUTTON ||
+                item.getId() == ItemID.RAW_PORKCHOP ||
+                item.getId() == ItemID.COOKED_PORKCHOP ||
+                item.getId() == ItemID.RAW_RABBIT ||
+                item.getId() == ItemID.COOKED_RABBIT ||
+                item.getId() == ItemID.ROTTEN_FLESH;
     }
-    
+
     public int getHealableItem(Item item) {
         switch (item.getId()) {
             case ItemID.RAW_PORKCHOP:
@@ -465,5 +493,16 @@ public class Wolf extends TameableMonster {
     @Override
     public boolean canTarget(Entity entity) {
         return true;
+    }
+
+    protected void spawnBaby() {
+        try {
+            Wolf wolf = this.getClass().getConstructor(FullChunk.class, CompoundTag.class).newInstance(this.getChunk(), Entity.getDefaultNBT(this));
+            wolf.setBaby(true);
+            wolf.spawnToAll();
+            this.getLevel().dropExpOrb(this, Utils.rand(1, 7));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
     }
 }

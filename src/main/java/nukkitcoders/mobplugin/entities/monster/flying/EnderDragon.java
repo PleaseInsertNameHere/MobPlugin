@@ -5,6 +5,7 @@ import cn.nukkit.entity.Attribute;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.item.EntityEndCrystal;
+import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.event.entity.ProjectileLaunchEvent;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
@@ -41,6 +42,11 @@ public class EnderDragon extends FlyingMonster implements Boss {
     }
 
     @Override
+    public float getLength() {
+        return 16f;
+    }
+
+    @Override
     public void initEntity() {
         super.initEntity();
 
@@ -53,10 +59,10 @@ public class EnderDragon extends FlyingMonster implements Boss {
 
     @Override
     public int getKillExperience() {
-        for (int i = 0; i < 167;) {
-            this.level.dropExpOrb(this, 3);
-            i++;
+        for (int i = 0; i <= 10; i++) {
+            this.level.dropExpOrb(this, 960);
         }
+        this.level.dropExpOrb(this, 2400);
         return 0;
     }
 
@@ -91,6 +97,11 @@ public class EnderDragon extends FlyingMonster implements Boss {
                 charge.spawnToAll();
             }
         }
+    }
+
+    @Override
+    public void jumpEntity(Entity player) {
+
     }
 
     @Override

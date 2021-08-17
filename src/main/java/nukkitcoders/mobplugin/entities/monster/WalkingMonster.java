@@ -7,6 +7,7 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.WalkingEntity;
+import nukkitcoders.mobplugin.entities.monster.walking.Goat;
 import nukkitcoders.mobplugin.utils.Utils;
 
 public abstract class WalkingMonster extends WalkingEntity implements Monster {
@@ -22,6 +23,8 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
     public WalkingMonster(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
     }
+
+
 
     @Override
     public void setFollowTarget(Entity target) {
@@ -155,11 +158,22 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
         this.lastUpdate = currentTick;
         this.entityBaseTick(tickDiff);
 
+
         Vector3 target = this.updateMove(tickDiff);
+
         if (target instanceof Entity && (!this.isFriendly() || !(target instanceof Player) || ((Entity) target).getId() == this.isAngryTo)) {
             Entity entity = (Entity) target;
+
             if (!entity.closed && (target != this.followTarget || this.canAttack)) {
-                this.attackEntity(entity);
+                if(this instanceof Goat) {
+                    if(this.attackDelay > 360) {
+                        this.attackEntity(entity);
+                    } if(this.jumpDelay > 60) {
+                        this.jumpEntity(entity); // not working
+                    }
+                } else {
+                    this.attackEntity(entity);
+                }
             }
         }
         return true;

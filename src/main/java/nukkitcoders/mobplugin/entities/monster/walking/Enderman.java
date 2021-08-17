@@ -1,9 +1,13 @@
 package nukkitcoders.mobplugin.entities.monster.walking;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.blockstate.BlockState;
+import cn.nukkit.blockstate.BlockStateRegistry;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
+import cn.nukkit.entity.data.IntEntityData;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
@@ -11,17 +15,21 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.NukkitMath;
+import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Enderman extends WalkingMonster {
 
     public static final int NETWORK_ID = 38;
 
     private int angry = 0;
+    private Item item;
 
     public Enderman(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -39,7 +47,7 @@ public class Enderman extends WalkingMonster {
 
     @Override
     public float getHeight() {
-        return 2.9f;
+        return this.isAngry() ? 3.25f : 2.9f;
     }
 
     @Override
@@ -52,11 +60,18 @@ public class Enderman extends WalkingMonster {
         this.setMaxHealth(40);
         super.initEntity();
 
-        this.setDamage(new float[]{0, 4, 7, 10});
+        this.setDamage(new float[]{0, 4.5f, 7, 10.5f});
+
+        if (this.namedTag.contains("Item")) {
+            this.item = NBTIO.getItemHelper(this.namedTag.getCompound("Item"));
+        }
+        if (this.namedTag.contains("Angry")) {
+            setAngry(this.namedTag.getInt("Angry"));
+        }
     }
 
     public void attackEntity(Entity player) {
-        if (this.attackDelay > 23 && this.distanceSquared(player) < 1) {
+        if (this.attackDelay > 23) {
             this.attackDelay = 0;
             HashMap<EntityDamageEvent.DamageModifier, Float> damage = new HashMap<>();
             damage.put(EntityDamageEvent.DamageModifier.BASE, this.getDamage());
@@ -74,6 +89,11 @@ public class Enderman extends WalkingMonster {
             }
             player.attack(new EntityDamageByEntityEvent(this, player, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage));
         }
+    }
+
+    @Override
+    public void jumpEntity(Entity player) {
+
     }
 
     @Override
@@ -102,7 +122,12 @@ public class Enderman extends WalkingMonster {
 
     @Override
     public Item[] getDrops() {
-        return new Item[]{Item.get(Item.ENDER_PEARL, 0, Utils.rand(0, 1))};
+        List<Item> drops = new ArrayList<>();
+        drops.add(Item.get(Item.ENDER_PEARL, 0, Utils.rand(0, 1)));
+        if (this.getItem() != null) {
+            drops.add(this.getItem());
+        }
+        return drops.toArray(new Item[0]);
     }
 
     @Override
@@ -118,10 +143,11 @@ public class Enderman extends WalkingMonster {
         }
 
         int b = level.getBlockIdAt(NukkitMath.floorDouble(this.x), (int) this.y, NukkitMath.floorDouble(this.z));
-        if (b == BlockID.WATER || b == BlockID.STILL_WATER) {
+        if (b == BlockID.FLOWING_WATER || b == BlockID.STILL_WATER) {
             this.attack(new EntityDamageEvent(this, EntityDamageEvent.DamageCause.DROWNING, 2));
             if (isAngry()) {
                 setAngry(0);
+                this.recalculateBoundingBox();
             }
             tp();
         } else if (Utils.rand(0, 500) == 20) {
@@ -137,7 +163,19 @@ public class Enderman extends WalkingMonster {
         }
 
         if (this.angry > 0) {
-            this.angry--;
+            if (this.angry-- <= 0) {
+                this.recalculateBoundingBox();
+            }
+        }
+        if (followTarget == null || followTarget.isClosed()) {
+            for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(32, 32, 32), this)) {
+                if (entity instanceof Endermite) {
+                    this.setAngry(2400);
+                    setFollowTarget(entity, true);
+                    setTarget(entity);
+                    break;
+                }
+            }
         }
 
         return super.entityBaseTick(tickDiff);
@@ -169,6 +207,7 @@ public class Enderman extends WalkingMonster {
     public void setAngry(int val) {
         this.angry = val;
         makeVibrating(val > 0);
+        this.recalculateBoundingBox();
     }
 
     @Override
@@ -176,7 +215,7 @@ public class Enderman extends WalkingMonster {
         if (!isAngry()) return false;
         if (creature instanceof Player) {
             Player player = (Player) creature;
-            return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && distance <= 144;
+            return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && player.getInventory().getHelmet().getId() != Block.CARVED_PUMPKIN && player.getEntityPlayerLookingAt(2) instanceof Enderman && distance <= 144; // Todo: Attack player when player has carved pumpkin equipped and attacks the enderman
         }
         return creature.isAlive() && !creature.closed && distance <= 144;
     }
@@ -185,6 +224,32 @@ public class Enderman extends WalkingMonster {
         if (!isAngry()) {
             setAngry(2400);
         }
+    }
+
+    @Override
+    public void spawnTo(Player player) {
+        super.spawnTo(player);
+        if (this.item != null) {
+            this.setDataProperty(new IntEntityData(DATA_ENDERMAN_HELD_RUNTIME_ID, BlockStateRegistry.getRuntimeId(BlockState.of(item.getBlockId(), item.getDamage()))));
+        }
+    }
+
+    @Override
+    public void saveNBT() {
+        super.saveNBT();
+        if (item != null) {
+            this.namedTag.put("Item", NBTIO.putItemHelper(item));
+        }
+        this.namedTag.putInt("Angry", angry);
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+        this.spawnToAll();
     }
 }
 

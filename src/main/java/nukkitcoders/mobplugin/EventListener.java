@@ -40,6 +40,7 @@ import nukkitcoders.mobplugin.entities.animal.walking.Chicken;
 import nukkitcoders.mobplugin.entities.animal.walking.Llama;
 import nukkitcoders.mobplugin.entities.animal.walking.Pig;
 import nukkitcoders.mobplugin.entities.animal.walking.Strider;
+import nukkitcoders.mobplugin.entities.animal.walking.*;
 import nukkitcoders.mobplugin.entities.block.BlockEntitySpawner;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.entities.monster.flying.Wither;
@@ -185,7 +186,8 @@ public class EventListener implements Listener {
                     .putInt(TAG_X, (int) block.x)
                     .putInt(TAG_Y, (int) block.y)
                     .putInt(TAG_Z, (int) block.z);
-            new BlockEntitySpawner(block.getLevel().getChunk((int) block.x >> 4, (int) block.z >> 4), nbt);
+            BlockEntitySpawner spawner = new BlockEntitySpawner(block.getLevel().getChunk((int) block.x >> 4, (int) block.z >> 4), nbt);
+            spawner.spawnToAll();
 
             if (!player.isCreative()) {
                 player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
@@ -342,6 +344,9 @@ public class EventListener implements Listener {
                 ((Pig) p.riding).onPlayerInput(p, ipk.motionX, ipk.motionY);
             } else if (p.riding instanceof Strider) {
                 ((Strider) p.riding).onPlayerInput(p, ipk.motionX, ipk.motionY);
+            } else if (p.riding instanceof SkeletonHorse) {
+                ((SkeletonHorse) p.riding).onPlayerInput(p, ipk.motionX, ipk.motionY);
+
             }
         }
     }

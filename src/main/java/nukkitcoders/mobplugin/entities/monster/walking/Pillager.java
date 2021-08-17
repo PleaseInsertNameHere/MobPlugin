@@ -18,6 +18,7 @@ import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class Pillager extends WalkingMonster {
@@ -40,7 +41,7 @@ public class Pillager extends WalkingMonster {
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return 1.9f;
     }
 
     @Override
@@ -48,7 +49,7 @@ public class Pillager extends WalkingMonster {
         super.initEntity();
 
         this.setMaxHealth(24);
-        this.setDamage(new float[] { 0, 4, 4, 5 });
+        this.setDamage(new float[]{0, 2, 3, 5});
     }
 
     @Override
@@ -61,7 +62,7 @@ public class Pillager extends WalkingMonster {
             double pitch = this.pitch + Utils.rand(-7.0, 7.0);
             Location pos = new Location(this.x - Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)) * 0.5, this.y + this.getHeight() - 0.18,
                     this.z + Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)) * 0.5, yaw, pitch, this.level);
-            if (this.getLevel().getBlockIdAt((int) pos.getX(),(int) pos.getY(),(int) pos.getZ()) == Block.AIR) {
+            if (this.getLevel().getBlockIdAt((int) pos.getX(), (int) pos.getY(), (int) pos.getZ()) == Block.AIR) {
                 Entity k = Entity.createEntity("Arrow", pos, this);
                 if (!(k instanceof EntityArrow)) {
                     return;
@@ -83,7 +84,16 @@ public class Pillager extends WalkingMonster {
                     if (launch.isCancelled()) {
                         projectile.close();
                     } else {
-                        projectile.namedTag.putDouble("damage", 4);
+                        if (this.server.getDifficulty() == 0) {
+                            projectile.namedTag.putDouble("damage", 0);
+                        } else if (this.server.getDifficulty() == 1) {
+                            projectile.namedTag.putDouble("damage", Utils.rand(3, 4));
+                        } else if (this.server.getDifficulty() == 2) {
+                            projectile.namedTag.putDouble("damage", 4);
+                        } else if (this.server.getDifficulty() == 3) {
+                            projectile.namedTag.putDouble("damage", Utils.rand(4, 5));
+                        }
+
                         projectile.spawnToAll();
                         ((EntityArrow) projectile).setPickupMode(EntityArrow.PICKUP_NONE);
                         this.level.addLevelSoundEvent(this, LevelSoundEventPacket.SOUND_CROSSBOW_SHOOT);
@@ -94,15 +104,19 @@ public class Pillager extends WalkingMonster {
     }
 
     @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        drops.add(Item.get(Item.ARROW, 0, Utils.rand(0, 2)));
 
-        for (int i = 0; i < Utils.rand(0, 2); i++) {
-            drops.add(Item.get(Item.ARROW, 0, 1));
-        }
-
-        if (Utils.rand(1, 12) == 1) {
-            drops.add(Item.get(471, Utils.rand(300, 380), Utils.rand(0, 1)));
+        if (this.getDataFlag(DATA_FLAGS, DATA_FLAG_IS_ILLAGER_CAPTAIN)) {
+            Item illagerBanner = Item.get(Item.BANNER, 15);
+            illagerBanner.setCompoundTag(Base64.getDecoder().decode("CgAAAwQAVHlwZQEAAAAA"));
+            drops.add(illagerBanner);
         }
 
         return drops.toArray(new Item[0]);

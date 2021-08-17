@@ -6,17 +6,25 @@ import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.MinecraftItemID;
+import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.particle.HeartParticle;
+import cn.nukkit.level.particle.ItemBreakParticle;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.potion.Effect;
 import nukkitcoders.mobplugin.entities.monster.FlyingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 public class Bee extends FlyingMonster {
 
     public static final int NETWORK_ID = 122;
+
+    protected int inLoveTicks = 0;
 
     private boolean angry;
 
@@ -26,7 +34,7 @@ public class Bee extends FlyingMonster {
 
     @Override
     public int getKillExperience() {
-        return Utils.rand(1, 3);
+        return this.isBaby() ? 0 : Utils.rand(1, 3);
     }
 
     @Override
@@ -95,15 +103,39 @@ public class Bee extends FlyingMonster {
     }
 
     @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
+    @Override
     public boolean targetOption(EntityCreature creature, double distance) {
+        if (creature instanceof Player) {
+            Player player = (Player) creature;
+            Item item = player.getInventory().getItemInHand();
+            if ((item.getId() == Item.DANDELION || item.getId() == Item.RED_FLOWER || item.getId() == MinecraftItemID.WITHER_ROSE.get(1).getId() || item.getId() == Item.DOUBLE_PLANT) && !this.isAngry()) {
+                if (followTarget == null || followTarget.isClosed()) {
+                    setFollowTarget(creature);
+                    setTarget(creature, false);
+                    return false;
+                }
+                return false;
+            } else {
+                if (followTarget != null && !this.isAngry()) {
+                    followTarget = null;
+                    return false;
+                }
+            }
+        }
         return this.isAngry() && super.targetOption(creature, distance);
     }
 
     @Override
     public boolean attack(EntityDamageEvent ev) {
         if (super.attack(ev)) {
-            if (ev instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) ev).getDamager() instanceof Player) {
+            if (ev instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) ev).getDamager() instanceof Player && !ev.isCancelled() && server.getDifficulty() != 0) {
                 this.setAngry(true);
+                followTarget = null;
+
             }
             return true;
         }
@@ -118,5 +150,67 @@ public class Bee extends FlyingMonster {
     public void setAngry(boolean angry) {
         this.angry = angry;
         this.setDataFlag(DATA_FLAGS, DATA_FLAG_ANGRY, angry);
+    }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        boolean hasUpdate = super.entityBaseTick(tickDiff);
+
+        if (this.isInLove()) {
+            this.inLoveTicks -= tickDiff;
+            if (this.age % 20 == 0) {
+                for (int i = 0; i < 3; i++) {
+                    this.level.addParticle(new HeartParticle(this.add(Utils.rand(-1.0, 1.0), this.getMountedYOffset() + Utils.rand(-1.0, 1.0), Utils.rand(-1.0, 1.0))));
+                }
+                for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(10, 5, 10), this)) {
+                    if (!entity.isClosed() && this.getClass().isInstance(entity)) {
+                        Bee bee = (Bee) entity;
+                        if (bee.isInLove()) {
+                            this.inLoveTicks = 0;
+                            bee.inLoveTicks = 0;
+                            this.spawnBaby();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return hasUpdate;
+    }
+
+    public void setInLove() {
+        this.inLoveTicks = 600;
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_INLOVE);
+    }
+
+    public boolean isInLove() {
+        return inLoveTicks > 0;
+    }
+
+    @Override
+    public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
+        if ((item.getId() == Item.DANDELION || item.getId() == Item.RED_FLOWER || item.getId() == MinecraftItemID.WITHER_ROSE.get(1).getId() || item.getId() == Item.DOUBLE_PLANT) && !this.isBaby()) {
+            if (!player.isCreative() || !player.isSpectator()) {
+                player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
+            }
+            this.level.addSound(this, Sound.RANDOM_EAT);
+            this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), item));
+            this.setInLove();
+            return true;
+        }
+        return super.onInteract(player, item);
+    }
+
+    protected void spawnBaby() {
+        Bee bee = null;
+        try {
+            bee = this.getClass().getConstructor(FullChunk.class, CompoundTag.class).newInstance(this.getChunk(), Entity.getDefaultNBT(this));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        bee.setBaby(true);
+        bee.spawnToAll();
+        this.getLevel().dropExpOrb(this, Utils.rand(1, 7));
     }
 }

@@ -55,7 +55,7 @@ public class Spider extends WalkingMonster implements EntityArthropod {
         super.initEntity();
 
         this.setMaxHealth(16);
-        this.setDamage(new float[] { 0, 2, 2, 3 });
+        this.setDamage(new float[]{0, 2, 3, 4});
     }
 
     @Override
@@ -78,7 +78,8 @@ public class Spider extends WalkingMonster implements EntityArthropod {
                 this.motionY = this.getGravity() * 3;
                 return true;
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
 
         return false;
     }
@@ -131,7 +132,12 @@ public class Spider extends WalkingMonster implements EntityArthropod {
             }
         }
     }
-    
+
+    @Override
+    public void jumpEntity(Entity player) {
+
+    }
+
     @Override
     public boolean attack(EntityDamageEvent ev) {
         super.attack(ev);
@@ -149,11 +155,9 @@ public class Spider extends WalkingMonster implements EntityArthropod {
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
 
-        for (int i = 0; i < Utils.rand(0, 2); i++) {
-            drops.add(Item.get(Item.STRING, 0, 1));
-        }
+        drops.add(Item.get(Item.STRING, 0, Utils.rand(0, 2)));
 
-        for (int i = 0; i < (Utils.rand(0, 2) == 0 ? 1 : 0); i++) {
+        if (Utils.rand(1, 3) == 1) {
             drops.add(Item.get(Item.SPIDER_EYE, 0, 1));
         }
 
