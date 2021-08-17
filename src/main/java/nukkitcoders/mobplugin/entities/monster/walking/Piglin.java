@@ -239,7 +239,9 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
         if (item.getId() == Item.get(Item.GOLD_INGOT).getId() && !this.isTrading()) {
             this.setDataFlag(DATA_FLAGS, DATA_FLAG_ADMIRING, true);
             setTrading(true);
-            setItemoffhand(item);
+            Item cloneitem = item.clone();
+            cloneitem.count = 1;
+            setItemoffhand(cloneitem);
             this.stayTime = 20 * 7;
             this.noRotateTicks = 20 * 7;
             // Todo: Fix Animation (Animation doesnt stop)
