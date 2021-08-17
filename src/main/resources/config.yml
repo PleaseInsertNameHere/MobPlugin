@@ -54,6 +54,7 @@ autospawn:
   panda: 1
   drowned: 2
   piglin: 2
+  hoglin: 2
 
 spawners:
   # Enable mob spawner blocks

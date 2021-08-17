@@ -35,15 +35,14 @@ public class MobPlugin extends PluginBase implements Listener {
 
     public Config config;
 
-    private static MobPlugin instance;
+    private static MobPlugin INSTANCE;
 
-    public static MobPlugin getInstance() {
-        return instance;
+    public MobPlugin() {
+        INSTANCE = this;
     }
 
-    @Override
-    public void onLoad() {
-        instance = this;
+    public static MobPlugin getInstance() {
+        return INSTANCE;
     }
 
     @Override
@@ -282,7 +281,7 @@ public class MobPlugin extends PluginBase implements Listener {
     }
 
     public static boolean isSpawningAllowedByLevel(Level level) {
-        return !MobPlugin.getInstance().config.mobSpawningDisabledWorlds.contains(level.getName().toLowerCase()) && level.getGameRules().getBoolean(GameRule.DO_MOB_SPAWNING);
+        return !INSTANCE.config.mobSpawningDisabledWorlds.contains(level.getName().toLowerCase()) && level.getGameRules().getBoolean(GameRule.DO_MOB_SPAWNING);
     }
 
     public static boolean shouldMobBurn(Level level, BaseEntity entity) {
@@ -291,6 +290,6 @@ public class MobPlugin extends PluginBase implements Listener {
     }
 
     public static boolean isEntityCreationAllowed(Level level) {
-        return !MobPlugin.getInstance().config.mobCreationDisabledWorlds.contains(level.getName().toLowerCase());
+        return !INSTANCE.config.mobCreationDisabledWorlds.contains(level.getName().toLowerCase());
     }
 }

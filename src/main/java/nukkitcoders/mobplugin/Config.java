@@ -57,6 +57,7 @@ public class Config {
                 pluginConfig.set("spawners.do-not-waste-spawn-eggs", false);
                 pluginConfig.set("other.worlds-entity-creation-disabled", "exampledworld1, exampleworld2");
                 pluginConfig.set("other.creeper-explode-blocks", true);
+                pluginConfig.set("autospawn.hoglin", 0);
             }
 
             if (current < 15) {
