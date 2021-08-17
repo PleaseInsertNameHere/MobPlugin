@@ -108,6 +108,7 @@ public class AutoSpawnTask implements Runnable {
         animalSpawners.add(new PandaSpawner(this));
         monsterSpawners.add(new DrownedSpawner(this));
         monsterSpawners.add(new PiglinSpawner(this));
+        monsterSpawners.add(new HoglinSpawner(this));
     }
 
     private void prepareMaxSpawns() {
@@ -152,6 +153,7 @@ public class AutoSpawnTask implements Runnable {
         maxSpawns.put(Panda.NETWORK_ID, this.pluginConfig.getInt("autospawn.panda"));
         maxSpawns.put(Drowned.NETWORK_ID, this.pluginConfig.getInt("autospawn.drowned"));
         maxSpawns.put(Piglin.NETWORK_ID, this.pluginConfig.getInt("autospawn.piglin"));
+        maxSpawns.put(Hoglin.NETWORK_ID, this.pluginConfig.getInt("autospawn.hoglin"));
     }
 
     public boolean entitySpawnAllowed(Level level, int networkId, Vector3 pos) {
@@ -299,6 +301,7 @@ public class AutoSpawnTask implements Runnable {
             case Piglin.NETWORK_ID:
             case WitherSkeleton.NETWORK_ID:
             case ZombiePigman.NETWORK_ID:
+            case Hoglin.NETWORK_ID:
                 return Level.DIMENSION_NETHER == dimension;
             default:
                 return Level.DIMENSION_OVERWORLD == dimension;

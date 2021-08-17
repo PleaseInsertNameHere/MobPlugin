@@ -33,31 +33,16 @@ import nukkitcoders.mobplugin.utils.Utils;
  */
 public class MobPlugin extends PluginBase implements Listener {
 
-    private static MobPlugin instance;
     public Config config;
 
+    private static MobPlugin INSTANCE;
+
+    public MobPlugin() {
+        INSTANCE = this;
+    }
+
     public static MobPlugin getInstance() {
-        return instance;
-    }
-
-    public static boolean isAnimalSpawningAllowedByTime(Level level) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return time < 13184 || time > 22800;
-    }
-
-    public static boolean isMobSpawningAllowedByTime(Level level) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return time > 13184 && time < 22800;
-    }
-
-    public static boolean shouldMobBurn(Level level, BaseEntity entity) {
-        int time = level.getTime() % Level.TIME_FULL;
-        return !entity.isOnFire() && !level.isRaining() && !entity.isBaby() && (time < 12567 || time > 23450) && !Utils.entityInsideWaterFast(entity) && (double) entity.getChunk().getHighestBlockAt(entity.getFloorX() & 15, entity.getFloorZ() & 15, false) < entity.getY();
-    }
-
-    @Override
-    public void onLoad() {
-        instance = this;
+        return INSTANCE;
     }
 
     @Override
@@ -226,13 +211,9 @@ public class MobPlugin extends PluginBase implements Listener {
         Entity.registerEntity(Pufferfish.class.getSimpleName(), Pufferfish.class);
         Entity.registerEntity(Rabbit.class.getSimpleName(), Rabbit.class);
         Entity.registerEntity(Salmon.class.getSimpleName(), Salmon.class);
-        Entity.registerEntity(Axolotl.class.getSimpleName(), Axolotl.class);
-
         Entity.registerEntity(SkeletonHorse.class.getSimpleName(), SkeletonHorse.class);
         Entity.registerEntity(Sheep.class.getSimpleName(), Sheep.class);
-        Entity.registerEntity(Goat.class.getSimpleName(), Goat.class);
         Entity.registerEntity(Squid.class.getSimpleName(), Squid.class);
-        Entity.registerEntity(GlowSquid.class.getSimpleName(), GlowSquid.class);
         Entity.registerEntity(TropicalFish.class.getSimpleName(), TropicalFish.class);
         Entity.registerEntity(Turtle.class.getSimpleName(), Turtle.class);
         Entity.registerEntity("VillagerV1", Villager.class);
@@ -289,7 +270,26 @@ public class MobPlugin extends PluginBase implements Listener {
         Entity.registerEntity("Trident", EntityTrident.class);
     }
 
+    public static boolean isAnimalSpawningAllowedByTime(Level level) {
+        int time = level.getTime() % Level.TIME_FULL;
+        return time < 13184 || time > 22800;
+    }
+
+    public static boolean isMobSpawningAllowedByTime(Level level) {
+        int time = level.getTime() % Level.TIME_FULL;
+        return time > 13184 && time < 22800;
+    }
+
+    public static boolean isSpawningAllowedByLevel(Level level) {
+        return !INSTANCE.config.mobSpawningDisabledWorlds.contains(level.getName().toLowerCase()) && level.getGameRules().getBoolean(GameRule.DO_MOB_SPAWNING);
+    }
+
+    public static boolean shouldMobBurn(Level level, BaseEntity entity) {
+        int time = level.getTime() % Level.TIME_FULL;
+        return !entity.isOnFire() && !level.isRaining() && !entity.isBaby() && (time < 12567 || time > 23450) && !Utils.entityInsideWaterFast(entity) && level.canBlockSeeSky(entity);
+    }
+
     public static boolean isEntityCreationAllowed(Level level) {
-        return !MobPlugin.getInstance().config.mobCreationDisabledWorlds.contains(level.getName().toLowerCase());
+        return !INSTANCE.config.mobCreationDisabledWorlds.contains(level.getName().toLowerCase());
     }
 }
