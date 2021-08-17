@@ -26,7 +26,7 @@ public abstract class Fish extends SwimmingAnimal {
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
         super.onInteract(player, item, clickedPos);
 
-        if (item.getId() == Item.BUCKET && (item.getDamage() == 0 && this.isInsideOfWater() || item.getDamage() == 8)) {
+        if (item.getId() == Item.BUCKET && (item.getDamage() == 0 || item.getDamage() == 8) && this.isInsideOfWater()) {
             EntityDamageEvent event = new EntityDamageByEntityEvent(player, this, EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK, this.getHealth());
             Server.getInstance().getPluginManager().callEvent(event);
             if (event.isCancelled())
@@ -51,7 +51,7 @@ public abstract class Fish extends SwimmingAnimal {
                 return true;
             }
         }
-        return false;
+        return super.onInteract(player, item, clickedPos);
     }
 
     abstract int getBucketMeta();

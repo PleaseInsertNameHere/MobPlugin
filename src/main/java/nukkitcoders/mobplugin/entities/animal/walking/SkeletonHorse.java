@@ -1,5 +1,6 @@
 package nukkitcoders.mobplugin.entities.animal.walking;
 
+import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityRideable;
@@ -190,5 +191,10 @@ public class SkeletonHorse extends WalkingAnimal implements EntitySmite, EntityR
 
             updatePassengerPosition(passenger);
         }
+    }
+
+    @Override
+    public boolean targetOption(EntityCreature creature, double distance) {
+        return false;
     }
 }

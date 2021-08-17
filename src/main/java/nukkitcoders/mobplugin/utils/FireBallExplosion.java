@@ -2,6 +2,7 @@ package nukkitcoders.mobplugin.utils;
 
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntityShulkerBox;
+import cn.nukkit.entity.EntityExplosive;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.level.*;
 import cn.nukkit.block.Block;
@@ -29,6 +30,7 @@ public class FireBallExplosion extends Explosion {
     private final Position source;
     private final double size;
     private final Object what;
+    private boolean doesDamage = true;
     private List<Block> affectedBlocks = new ArrayList<>();
 
     public FireBallExplosion(Position center, double size, Entity what) {
@@ -41,6 +43,10 @@ public class FireBallExplosion extends Explosion {
 
     @Override
     public boolean explodeA() {
+        if (what instanceof EntityExplosive && ((Entity) what).isInsideOfWater()) {
+            this.doesDamage = false;
+            return true;
+        }
         if (this.size < 0.1) return false;
         Vector3 vector = new Vector3(0, 0, 0);
         Vector3 vBlock = new Vector3(0, 0, 0);
@@ -115,7 +121,7 @@ public class FireBallExplosion extends Explosion {
                 Vector3 motion = entity.subtract(this.source).normalize();
                 int exposure = 1;
                 double impact = (1 - distance) * exposure;
-                int damage = (int) (((impact * impact + impact) / 2) * 5 * explosionSize + 1);
+                int damage = this.doesDamage ? (int) (((impact * impact + impact) / 2) * 5 * explosionSize + 1) : 0;
                 if (this.what instanceof Entity) {
                     entity.attack(new EntityDamageByEntityEvent((Entity) this.what, entity, DamageCause.ENTITY_EXPLOSION, damage));
                 } else if (this.what instanceof Block) {

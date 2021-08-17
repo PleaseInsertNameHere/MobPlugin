@@ -72,6 +72,9 @@ public class Strider extends WalkingAnimal implements EntityRideable {
         if (entity.riding != null) {
             dismountEntity(entity);
             entity.resetFallDistance();
+            this.motionX = 0;
+            this.motionZ = 0;
+            this.stayTime = 20;
         } else {
             if (isPassenger(entity)) {
                 return false;
@@ -181,8 +184,9 @@ public class Strider extends WalkingAnimal implements EntityRideable {
         }
 
         for (Entity passenger : new ArrayList<>(this.passengers)) {
-            if (!passenger.isAlive() || this.isInsideOfWater()) {
+            if (!passenger.isAlive() || Utils.entityInsideWaterFast(this)) {
                 dismountEntity(passenger);
+                passenger.resetFallDistance();
                 continue;
             }
 

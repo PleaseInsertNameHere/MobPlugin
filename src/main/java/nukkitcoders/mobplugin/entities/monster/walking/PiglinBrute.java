@@ -55,7 +55,7 @@ public class PiglinBrute extends WalkingMonster {
         if (this.attackDelay > 23 && this.distanceSquared(player) < 1.44) {
             this.attackDelay = 0;
             HashMap<EntityDamageEvent.DamageModifier, Float> damage = new HashMap<>();
-            damage.put(EntityDamageEvent.DamageModifier.BASE, (float) this.getDamage());
+            damage.put(EntityDamageEvent.DamageModifier.BASE, this.getDamage());
 
             if (player instanceof Player) {
                 HashMap<Integer, Float> armorValues = new ArmorPoints();

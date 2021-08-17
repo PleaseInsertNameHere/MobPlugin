@@ -226,4 +226,9 @@ public class Wither extends FlyingMonster implements Boss, EntitySmite {
             explosion.explodeB();
         }
     }
+
+    @Override
+    public boolean canTarget(Entity entity) {
+        return true;
+    }
 }

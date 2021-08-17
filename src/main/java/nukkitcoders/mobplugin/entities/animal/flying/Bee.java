@@ -81,7 +81,7 @@ public class Bee extends FlyingMonster {
         if (this.attackDelay > 23 && this.distanceSquared(player) < 1.3) {
             this.attackDelay = 0;
             HashMap<EntityDamageEvent.DamageModifier, Float> damage = new HashMap<>();
-            damage.put(EntityDamageEvent.DamageModifier.BASE, (float) this.getDamage());
+            damage.put(EntityDamageEvent.DamageModifier.BASE, this.getDamage());
             if (player instanceof Player) {
                 HashMap<Integer, Float> armorValues = new ArmorPoints();
                 float points = 0;

@@ -7,7 +7,6 @@ import cn.nukkit.math.Vector2;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.RouteFinderThreadPool;
-import nukkitcoders.mobplugin.entities.animal.Animal;
 import nukkitcoders.mobplugin.route.RouteFinder;
 import nukkitcoders.mobplugin.runnable.RouteFinderSearchTask;
 import nukkitcoders.mobplugin.utils.Utils;
@@ -35,8 +34,8 @@ public abstract class SwimmingEntity extends BaseEntity {
 
         double near = Integer.MAX_VALUE;
 
-        for (Entity entity : this.getViewers().values()) {
-            if (entity == this || !(entity instanceof EntityCreature) || entity instanceof Animal) {
+        for (Entity entity : this.getLevel().getEntities()) {
+            if (entity == this || !(entity instanceof EntityCreature) || !this.canTarget(entity)) {
                 continue;
             }
 
@@ -54,11 +53,10 @@ public abstract class SwimmingEntity extends BaseEntity {
             this.stayTime = 0;
             this.moveTime = 0;
             this.followTarget = creature;
-            if (this.route!=null)this.target = creature;
-
+            if (this.route != null) this.target = creature;
         }
 
-        if (this.followTarget instanceof EntityCreature && !((EntityCreature) this.followTarget).closed && this.followTarget.isAlive() && this.targetOption((EntityCreature) this.followTarget, this.distanceSquared(this.followTarget)) && this.target != null) {
+        if (this.followTarget instanceof EntityCreature && !this.followTarget.closed && this.followTarget.isAlive() && this.targetOption((EntityCreature) this.followTarget, this.distanceSquared(this.followTarget)) && this.target != null) {
             return;
         }
 

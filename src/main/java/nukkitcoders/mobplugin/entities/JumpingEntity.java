@@ -4,7 +4,6 @@ import cn.nukkit.block.BlockID;
 import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
-import cn.nukkit.entity.passive.EntityAnimal;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.particle.BubbleParticle;
 import cn.nukkit.math.NukkitMath;
@@ -33,8 +32,8 @@ public abstract class JumpingEntity extends BaseEntity {
         if (!(target instanceof EntityCreature) || !this.targetOption((EntityCreature) target, this.distanceSquared(target))) {
             double near = Integer.MAX_VALUE;
 
-            for (Entity entity : this.getViewers().values()) {
-                if (entity == this || !(entity instanceof EntityCreature) || entity instanceof EntityAnimal) {
+            for (Entity entity : this.getLevel().getEntities()) {
+                if (entity == this || !(entity instanceof EntityCreature) || !this.canTarget(entity)) {
                     continue;
                 }
 

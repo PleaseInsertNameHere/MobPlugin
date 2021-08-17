@@ -6,7 +6,6 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector2;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
-import nukkitcoders.mobplugin.entities.animal.Animal;
 import nukkitcoders.mobplugin.utils.Utils;
 import org.apache.commons.math3.util.FastMath;
 
@@ -25,8 +24,8 @@ public abstract class FlyingEntity extends BaseEntity {
         if (!(target instanceof EntityCreature) || !this.targetOption((EntityCreature) target, this.distanceSquared(target))) {
             double near = Integer.MAX_VALUE;
 
-            for (Entity entity : this.getViewers().values()) {
-                if (entity == this || !(entity instanceof EntityCreature) || entity instanceof Animal) {
+            for (Entity entity : this.getLevel().getEntities()) {
+                if (entity == this || !(entity instanceof EntityCreature) || !this.canTarget(entity)) {
                     continue;
                 }
 

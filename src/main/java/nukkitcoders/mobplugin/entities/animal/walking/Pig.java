@@ -256,6 +256,7 @@ public class Pig extends WalkingAnimal implements EntityRideable {
         for (Entity passenger : new ArrayList<>(this.passengers)) {
             if (!passenger.isAlive() || Utils.entityInsideWaterFast(this)) {
                 dismountEntity(passenger);
+                passenger.resetFallDistance();
                 continue;
             }
 

@@ -92,6 +92,7 @@ public class Mooshroom extends WalkingAnimal {
                 player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
                 if (player.getInventory().canAddItem(newBowl)) {
                     player.getInventory().addItem(newBowl);
+            this.level.addSound(this, Sound.MOB_MOOSHROOM_SUSPICIOUS_MILK);
                 } else {
                     player.dropItem(newBowl);
                 }
