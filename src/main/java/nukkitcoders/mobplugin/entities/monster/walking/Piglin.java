@@ -418,7 +418,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                 if (!this.isTrading()) {
                     if (item.getId() == Item.GOLD_INGOT) {
                         if (!this.isBaby()) {
-                            animate(item, entity);
+                            animate(item, entity, true);
                             Server.getInstance().getScheduler().scheduleDelayedTask(MobPlugin.getInstance(), new Runnable() {
                                 @Override
                                 public void run() {
@@ -436,7 +436,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                         }
                     } else if (isItemValid(item)) {
                         if (this.inventory.canAddItem(item)) {
-                            animate(item, entity);
+                            animate(item, entity, false);
 
                             Server.getInstance().getScheduler().scheduleDelayedTask(MobPlugin.getInstance(), new Runnable() {
                                 @Override
@@ -572,7 +572,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
         }
     }
 
-    private void animate(Item item, Entity entity) {
+    private void animate(Item item, Entity entity, boolean trade) {
         if (item.getCount() > 1) {
             item.setCount(item.getCount() - 1);
             entity.spawnToAll();
@@ -583,7 +583,11 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
         this.stayTime = 20 * 7;
         this.lookingTicks = 20 * 7;
         setTrading(true);
-        setItemoffhand(item);
+        Item offhandItem = item.clone();
+        if (trade) {
+            offhandItem.setCount(1);
+        }
+        setItemoffhand(offhandItem);
         this.isRunning = false;
 
 
