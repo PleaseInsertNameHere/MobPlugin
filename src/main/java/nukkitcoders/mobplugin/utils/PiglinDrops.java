@@ -18,7 +18,7 @@ public class PiglinDrops {
     public static final Selector SOULSAND = putSelector(new ConstantItemSelector(MinecraftItemID.SOUL_SAND.get(1), 2, 8, ROOT_TRADING), 0.087f);
     public static final Selector NETHER_BRICK = putSelector(new ConstantItemSelector(Item.get(Item.BRICK, 0, 1), 2, 8, ROOT_TRADING), 0.087f);
     public static final Selector LEATHER = putSelector(new ConstantItemSelector(MinecraftItemID.LEATHER.get(1), 2, 4, ROOT_TRADING), 0.087f);
-    public static final Selector CRYING_OBSIDIAN = putSelector(new ConstantItemSelector(MinecraftItemID.CRYING_OBSIDIAN.get(1), 1, 3, ROOT_TRADING), 0.087f);
+    // public static final Selector CRYING_OBSIDIAN = putSelector(new ConstantItemSelector(MinecraftItemID.CRYING_OBSIDIAN.get(1), 1, 3, ROOT_TRADING), 0.087f);
     public static final Selector OBSIDIAN = putSelector(new ConstantItemSelector(MinecraftItemID.OBSIDIAN.get(1), ROOT_TRADING), 0.087f);
     public static final Selector FIRE_CHARGE = putSelector(new ConstantItemSelector(MinecraftItemID.FIRE_CHARGE.get(1), ROOT_TRADING), 0.087f);
     public static final Selector NETHER_QUARZ = putSelector(new ConstantItemSelector(MinecraftItemID.QUARTZ.get(1), 5, 12, ROOT_TRADING), 0.043f);
