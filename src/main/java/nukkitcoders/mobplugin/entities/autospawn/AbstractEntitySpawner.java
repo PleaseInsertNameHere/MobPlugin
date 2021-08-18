@@ -2,11 +2,16 @@ package nukkitcoders.mobplugin.entities.autospawn;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import nukkitcoders.mobplugin.AutoSpawnTask;
 import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author <a href="mailto:kniffman@googlemail.com">Michael Gertz</a>
@@ -17,9 +22,19 @@ public abstract class AbstractEntitySpawner implements IEntitySpawner {
 
     protected Server server;
 
+    public static List<String> disabledSpawnWorlds = new ArrayList<>();
+
     public AbstractEntitySpawner(AutoSpawnTask spawnTask) {
         this.spawnTask = spawnTask;
         this.server = Server.getInstance();
+
+        String disabledWorlds = MobPlugin.getInstance().config.pluginConfig.getString("entities.worlds-spawning-disabled");
+        if (disabledWorlds != null && !disabledWorlds.trim().isEmpty()) {
+            StringTokenizer tokenizer = new StringTokenizer(disabledWorlds, ", ");
+            while (tokenizer.hasMoreTokens()) {
+                disabledSpawnWorlds.add(tokenizer.nextToken().toLowerCase());
+            }
+        }
     }
 
     @Override
@@ -33,11 +48,15 @@ public abstract class AbstractEntitySpawner implements IEntitySpawner {
         }
     }
 
+    public boolean isWorldSpawnAllowed(Level level) {
+        return level.getGameRules().getBoolean(GameRule.DO_MOB_SPAWNING) && disabledSpawnWorlds.contains(level.getName().toLowerCase());
+    }
+
     private void spawnTo(Player player) {
         Position pos = player.getPosition();
         Level level = player.getLevel();
 
-        if (this.spawnTask.entitySpawnAllowed(level, getEntityNetworkId(), player)) {
+        if (isWorldSpawnAllowed(level) && this.spawnTask.entitySpawnAllowed(level, getEntityNetworkId(), player)) {
             if (pos != null) {
                 pos.x += this.spawnTask.getRandomSafeXZCoord(50, 26, 6);
                 pos.z += this.spawnTask.getRandomSafeXZCoord(50, 26, 6);

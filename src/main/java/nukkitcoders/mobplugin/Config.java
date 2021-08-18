@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 
 public class Config {
 
-    final cn.nukkit.utils.Config pluginConfig;
+    public final cn.nukkit.utils.Config pluginConfig;
 
     public int spawnDelay;
     public int despawnTicks;
