@@ -573,18 +573,18 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
     }
 
     private void animate(Item item, Entity entity) {
-        this.setDataFlag(DATA_FLAGS, DATA_FLAG_ADMIRING, true);
-        this.stayTime = 20 * 7;
-        this.lookingTicks = 20 * 7;
-        setTrading(true);
-        setItemoffhand(item);
-        this.isRunning = false;
         if (item.getCount() > 1) {
             item.setCount(item.getCount() - 1);
             entity.spawnToAll();
         } else {
             entity.close();
         }
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_ADMIRING, true);
+        this.stayTime = 20 * 7;
+        this.lookingTicks = 20 * 7;
+        setTrading(true);
+        setItemoffhand(item);
+        this.isRunning = false;
 
 
         // Todo: Fix Animation (Animation doesnt stop)
