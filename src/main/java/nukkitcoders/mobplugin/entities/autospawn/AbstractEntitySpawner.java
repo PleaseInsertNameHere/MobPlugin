@@ -22,25 +22,15 @@ public abstract class AbstractEntitySpawner implements IEntitySpawner {
 
     protected Server server;
 
-    public static List<String> disabledSpawnWorlds = new ArrayList<>();
-
     public AbstractEntitySpawner(AutoSpawnTask spawnTask) {
         this.spawnTask = spawnTask;
         this.server = Server.getInstance();
-
-        String disabledWorlds = MobPlugin.getInstance().config.pluginConfig.getString("entities.worlds-spawning-disabled");
-        if (disabledWorlds != null && !disabledWorlds.trim().isEmpty()) {
-            StringTokenizer tokenizer = new StringTokenizer(disabledWorlds, ", ");
-            while (tokenizer.hasMoreTokens()) {
-                disabledSpawnWorlds.add(tokenizer.nextToken().toLowerCase());
-            }
-        }
     }
 
     @Override
     public void spawn() {
         for (Player player : server.getOnlinePlayers().values()) {
-            if (MobPlugin.isAnimalSpawningAllowedByTime(player.getLevel())) {
+            if (MobPlugin.isSpawningAllowedByLevel(player.getLevel()) && MobPlugin.isAnimalSpawningAllowedByTime(player.getLevel())) {
                 if (isSpawnAllowedByDifficulty()) {
                     spawnTo(player);
                 }
@@ -48,15 +38,11 @@ public abstract class AbstractEntitySpawner implements IEntitySpawner {
         }
     }
 
-    public boolean isWorldSpawnAllowed(Level level) {
-        return level.getGameRules().getBoolean(GameRule.DO_MOB_SPAWNING) && disabledSpawnWorlds.contains(level.getName().toLowerCase());
-    }
-
     private void spawnTo(Player player) {
         Position pos = player.getPosition();
         Level level = player.getLevel();
 
-        if (isWorldSpawnAllowed(level) && this.spawnTask.entitySpawnAllowed(level, getEntityNetworkId(), player)) {
+        if (this.spawnTask.entitySpawnAllowed(level, getEntityNetworkId(), player)) {
             if (pos != null) {
                 pos.x += this.spawnTask.getRandomSafeXZCoord(50, 26, 6);
                 pos.z += this.spawnTask.getRandomSafeXZCoord(50, 26, 6);
