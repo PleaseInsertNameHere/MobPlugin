@@ -577,8 +577,10 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
         this.stayTime = 20 * 7;
         this.lookingTicks = 20 * 7;
         setTrading(true);
-        setItemoffhand(item);
         this.isRunning = false;
+        Item cloneitem = item.clone();
+        cloneitem.count = 1;
+        setItemoffhand(cloneitem);
         if (item.getCount() > 1) {
             item.setCount(item.getCount() - 1);
             entity.spawnToAll();
