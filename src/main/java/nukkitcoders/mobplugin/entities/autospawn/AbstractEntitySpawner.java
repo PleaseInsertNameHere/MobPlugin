@@ -2,16 +2,11 @@ package nukkitcoders.mobplugin.entities.autospawn;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import nukkitcoders.mobplugin.AutoSpawnTask;
 import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.utils.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * @author <a href="mailto:kniffman@googlemail.com">Michael Gertz</a>
