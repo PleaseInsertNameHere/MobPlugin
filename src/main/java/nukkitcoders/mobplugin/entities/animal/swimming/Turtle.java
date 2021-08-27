@@ -107,7 +107,7 @@ public class Turtle extends SwimmingAnimal {
 
     @Override
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
-        if ((item.getId() == Item.SEAGRASS) && !this.isBaby()) {
+        if ((item.getNamespaceId().equals(MinecraftItemID.SEAGRASS.getNamespacedId())) && !this.isBaby()) {
             if (!player.isCreative() || !player.isSpectator()) {
                 player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
             }
