@@ -17,9 +17,9 @@ public interface Tameable {
 
     Player getOwner();
 
-    boolean hasOwner();
-
     void setOwner(Player player);
+
+    boolean hasOwner();
 
     String getOwnerUUID();
 

@@ -8,15 +8,19 @@ import cn.nukkit.level.Position;
 
 public class SpawnGolemEvent extends Event implements Cancellable {
 
+    private static final HandlerList handlers = new HandlerList();
     private final Position golemPosition;
     private final Player player;
     private final GolemType golemType;
-    private static final HandlerList handlers = new HandlerList();
 
     public SpawnGolemEvent(Player player, Position golemPosition, GolemType golemType) {
         this.player = player;
         this.golemPosition = golemPosition;
         this.golemType = golemType;
+    }
+
+    public static HandlerList getHandlers() {
+        return handlers;
     }
 
     public Player getPlayer() {
@@ -34,9 +38,5 @@ public class SpawnGolemEvent extends Event implements Cancellable {
     public enum GolemType {
         IRON_GOLEM,
         SNOW_GOLEM
-    }
-
-    public static HandlerList getHandlers() {
-        return handlers;
     }
 }

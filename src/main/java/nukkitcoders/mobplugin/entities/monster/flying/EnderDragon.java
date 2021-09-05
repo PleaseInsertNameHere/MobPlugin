@@ -5,7 +5,6 @@ import cn.nukkit.entity.Attribute;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.item.EntityEndCrystal;
-import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.event.entity.ProjectileLaunchEvent;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;

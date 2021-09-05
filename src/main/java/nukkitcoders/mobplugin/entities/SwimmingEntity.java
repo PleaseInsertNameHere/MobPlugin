@@ -26,7 +26,7 @@ public abstract class SwimmingEntity extends BaseEntity {
         }
 
 
-        if (this.followTarget != null && !this.followTarget.closed && this.followTarget.isAlive() && targetOption((EntityCreature) this.followTarget,this.distanceSquared(this.followTarget)) && this.target!=null) {
+        if (this.followTarget != null && !this.followTarget.closed && this.followTarget.isAlive() && targetOption((EntityCreature) this.followTarget, this.distanceSquared(this.followTarget)) && this.target != null) {
             return;
         }
 
@@ -87,7 +87,7 @@ public abstract class SwimmingEntity extends BaseEntity {
             if (!this.isMovement()) {
                 return null;
             }
-            if (this.age % 10 == 0 && this.route!=null && !this.route.isSearching()) {
+            if (this.age % 10 == 0 && this.route != null && !this.route.isSearching()) {
                 RouteFinderThreadPool.executeRouteFinderThread(new RouteFinderSearchTask(this.route));
                 if (this.route.hasNext()) {
                     this.target = this.route.next();
@@ -101,7 +101,7 @@ public abstract class SwimmingEntity extends BaseEntity {
                 return null;
             }
 
-            if (this.followTarget != null && !this.followTarget.closed && this.followTarget.isAlive() && this.target!=null) {
+            if (this.followTarget != null && !this.followTarget.closed && this.followTarget.isAlive() && this.target != null) {
 
                 double x = this.target.x - this.x;
                 double z = this.target.z - this.z;
@@ -166,7 +166,7 @@ public abstract class SwimmingEntity extends BaseEntity {
                     }
                 }
             }
-            return this.followTarget !=null ? this.followTarget : this.target ;
+            return this.followTarget != null ? this.followTarget : this.target;
         }
         return null;
     }

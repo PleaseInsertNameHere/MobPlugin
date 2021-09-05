@@ -25,7 +25,8 @@ public class RouteFinderSearchTask implements Runnable {
                 retryTime += 10;
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException ignore) {}
+                } catch (InterruptedException ignore) {
+                }
             }
         }
         route.interrupt();

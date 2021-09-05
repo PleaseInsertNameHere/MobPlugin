@@ -4,12 +4,12 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import nukkitcoders.mobplugin.AutoSpawnTask;
 import nukkitcoders.mobplugin.MobPlugin;
+import nukkitcoders.mobplugin.entities.BaseEntity;
 import nukkitcoders.mobplugin.entities.animal.walking.Fox;
 import nukkitcoders.mobplugin.entities.autospawn.AbstractEntitySpawner;
 import nukkitcoders.mobplugin.utils.Utils;
-import nukkitcoders.mobplugin.AutoSpawnTask;
-import nukkitcoders.mobplugin.entities.BaseEntity;
 
 public class FoxSpawner extends AbstractEntitySpawner {
 

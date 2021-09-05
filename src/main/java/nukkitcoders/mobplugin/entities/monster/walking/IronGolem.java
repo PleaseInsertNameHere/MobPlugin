@@ -130,7 +130,7 @@ public class IronGolem extends WalkingMonster {
             if (ev instanceof EntityDamageByEntityEvent) {
                 Entity entity = ((EntityDamageByEntityEvent) ev).getDamager();
                 if (entity instanceof Player || entity instanceof Goat || entity instanceof Llama || entity instanceof SnowGolem || (entity instanceof Wolf && ((Wolf) entity).isFriendly())) {
-                    if (followTarget == null ||followTarget.isClosed()) {
+                    if (followTarget == null || followTarget.isClosed()) {
                         this.isAngryTo = entity.getId();
                         setFollowTarget(entity);
                         setTarget(entity);
@@ -147,7 +147,8 @@ public class IronGolem extends WalkingMonster {
     public boolean canTarget(Entity entity) {
         return entity.getId() == this.isAngryTo;
     }
-    @Override  
+
+    @Override
     public boolean entityBaseTick(int tickDiff) {
         if (followTarget == null || followTarget.isClosed()) {
             for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(32, 32, 32), this)) {

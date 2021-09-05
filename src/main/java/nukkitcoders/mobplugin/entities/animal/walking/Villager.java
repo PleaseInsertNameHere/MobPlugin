@@ -103,7 +103,8 @@ public class Villager extends WalkingAnimal {
     public boolean canDespawn() {
         return false;
     }
-    @Override  
+
+    @Override
     public void kill() {
         if (this.isAlive()) {
             if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {
