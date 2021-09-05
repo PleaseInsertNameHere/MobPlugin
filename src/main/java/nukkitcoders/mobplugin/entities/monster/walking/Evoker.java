@@ -7,7 +7,6 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import nukkitcoders.mobplugin.entities.BaseEntity;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.route.WalkerRouteFinder;
 import nukkitcoders.mobplugin.utils.Utils;
@@ -49,7 +48,7 @@ public class Evoker extends WalkingMonster {
     @Override
     protected void initEntity() {
         super.initEntity();
-        this.setDamage(new float[] { 0, 3, 6, 9 });
+        this.setDamage(new float[]{0, 3, 6, 9});
         this.setMaxHealth(24);
     }
 
@@ -84,7 +83,11 @@ public class Evoker extends WalkingMonster {
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
 
-        drops.add(Item.get(Item.EMERALD, 0, Utils.rand(0, 1)));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.EMERALD, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+        } else {
+            drops.add(Item.get(Item.EMERALD, 0, Utils.rand(0, 1)));
+        }
         drops.add(Item.get(Item.TOTEM, 0, 1));
         Item illagerBanner = Item.get(Item.BANNER, 15);
         illagerBanner.setCompoundTag(Base64.getDecoder().decode("CgAAAwQAVHlwZQEAAAAA"));

@@ -6,6 +6,7 @@ import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.data.IntEntityData;
 import cn.nukkit.entity.passive.EntityMooshroom;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
@@ -72,8 +73,16 @@ public class Mooshroom extends WalkingAnimal {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 2)));
-            drops.add(Item.get(this.isOnFire() ? Item.COOKED_BEEF : Item.RAW_BEEF, 0, Utils.rand(1, 3)));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 2)));
+            }
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_BEEF : Item.RAW_BEEF, 0, Utils.rand(1, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 3)));
+            } else {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_BEEF : Item.RAW_BEEF, 0, Utils.rand(1, 3)));
+            }
         }
 
         return drops.toArray(new Item[0]);
@@ -92,7 +101,7 @@ public class Mooshroom extends WalkingAnimal {
                 player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
                 if (player.getInventory().canAddItem(newBowl)) {
                     player.getInventory().addItem(newBowl);
-            this.level.addSound(this, Sound.MOB_MOOSHROOM_SUSPICIOUS_MILK);
+                    this.level.addSound(this, Sound.MOB_MOOSHROOM_SUSPICIOUS_MILK);
                 } else {
                     player.dropItem(newBowl);
                 }

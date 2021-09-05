@@ -131,10 +131,18 @@ public class PolarBear extends WalkingMonster {
 
         if (!this.isBaby()) {
             if (Utils.rand(1, 25) == 1) {
-                drops.add(Item.get(Item.RAW_FISH, 0, Utils.rand(0, 2)));
+                if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                    drops.add(Item.get(Item.RAW_FISH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+                } else {
+                    drops.add(Item.get(Item.RAW_FISH, 0, Utils.rand(0, 2)));
+                }
             }
             if (Utils.rand(1, 75) == 1) {
-                drops.add(Item.get(Item.RAW_SALMON, 0, Utils.rand(0, 2)));
+                if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                    drops.add(Item.get(Item.RAW_SALMON, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+                } else {
+                    drops.add(Item.get(Item.RAW_SALMON, 0, Utils.rand(0, 2)));
+                }
             }
         }
 

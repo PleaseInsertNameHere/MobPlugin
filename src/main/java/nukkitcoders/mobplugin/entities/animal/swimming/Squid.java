@@ -1,5 +1,6 @@
 package nukkitcoders.mobplugin.entities.animal.swimming;
 
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemDye;
@@ -9,6 +10,9 @@ import cn.nukkit.network.protocol.EntityEventPacket;
 import cn.nukkit.utils.DyeColor;
 import nukkitcoders.mobplugin.entities.animal.SwimmingAnimal;
 import nukkitcoders.mobplugin.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Squid extends SwimmingAnimal {
 
@@ -48,11 +52,16 @@ public class Squid extends SwimmingAnimal {
 
     @Override
     public Item[] getDrops() {
+        List<Item> drops = new ArrayList<>();
         if (!this.isBaby()) {
-            return new Item[]{new ItemDye(DyeColor.BLACK.getDyeData(), Utils.rand(1, 3))};
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(new ItemDye(DyeColor.BLACK.getDyeData(), Utils.rand(1, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 3)));
+            } else {
+                drops.add(new ItemDye(DyeColor.BLACK.getDyeData(), Utils.rand(1, 3)));
+            }
         }
 
-        return new Item[]{};
+        return drops.toArray(new Item[0]);
     }
 
     @Override

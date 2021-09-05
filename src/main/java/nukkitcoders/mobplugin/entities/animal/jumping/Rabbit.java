@@ -2,6 +2,7 @@ package nukkitcoders.mobplugin.entities.animal.jumping;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.EntityCreature;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
@@ -71,10 +72,24 @@ public class Rabbit extends JumpingAnimal {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.RABBIT_HIDE, 0, Utils.rand(0, 1)));
-            drops.add(Item.get(this.isOnFire() ? Item.COOKED_RABBIT : Item.RAW_RABBIT, 0, Utils.rand(0, 1)));
-            if (Utils.rand(1, 10) == 1) {
-                drops.add(Item.get(Item.RABBIT_FOOT, 0, 1));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.RABBIT_HIDE, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+            } else {
+                drops.add(Item.get(Item.RABBIT_HIDE, 0, Utils.rand(0, 1)));
+            }
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_RABBIT : Item.RAW_RABBIT, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+            } else {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_RABBIT : Item.RAW_RABBIT, 0, Utils.rand(0, 1)));
+            }
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                if (Utils.rand(1, 100) <= 10 + (((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 3)) {
+                    drops.add(Item.get(Item.RABBIT_FOOT, 0, 1));
+                }
+            } else {
+                if (Utils.rand(1, 10) == 1) {
+                    drops.add(Item.get(Item.RABBIT_FOOT, 0, 1));
+                }
             }
         }
 

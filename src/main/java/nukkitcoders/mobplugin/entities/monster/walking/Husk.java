@@ -83,16 +83,25 @@ public class Husk extends WalkingMonster implements EntityAgeable, EntitySmite {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
-            if (Utils.rand(1, 20) == 1) {
-                Item[] droppingItem = new Item[]{Item.get(Item.IRON_INGOT), Item.get(Item.CARROT), Item.get(Item.POTATO)};
-                drops.add(droppingItem[Utils.rand(0, droppingItem.length - 1)]);
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
+            }
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                if (Utils.rand(1, 1000) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 10) {
+                    Item[] droppingItem = new Item[]{Item.get(Item.IRON_INGOT), Item.get(Item.CARROT), Item.get(Item.POTATO)};
+                    drops.add(droppingItem[Utils.rand(0, droppingItem.length - 1)]);
+                }
+            } else {
+                if (Utils.rand(1, 40) == 1) {
+                    Item[] droppingItem = new Item[]{Item.get(Item.IRON_INGOT), Item.get(Item.CARROT), Item.get(Item.POTATO)};
+                    drops.add(droppingItem[Utils.rand(0, droppingItem.length - 1)]);
+                }
             }
         }
         if (item != null && !item.isNull()) {
-            if (Utils.rand(1, 200) <= 17) {
-                drops.add(item);
-            }
+            drops.add(item);
         }
 
         return drops.toArray(new Item[0]);

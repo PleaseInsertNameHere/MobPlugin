@@ -82,9 +82,7 @@ public class Goat extends WalkingMonster {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            for (int i = 0; i < Utils.rand(1, 2); i++) {
-                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, 1));
-            }
+            // Todo: nothing yet
         }
         return drops.toArray(new Item[0]);
     }

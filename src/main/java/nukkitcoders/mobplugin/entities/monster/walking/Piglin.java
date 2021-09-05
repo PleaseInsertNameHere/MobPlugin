@@ -610,14 +610,17 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
 
     @Override
     public Item[] getDrops() {
-        List<Item> drops = new ArrayList<>();
-        for (Item item : this.inventory.getContents().values()) {
-            drops.add(item);
-        }
+        List<Item> drops = new ArrayList<>(this.inventory.getContents().values());
 
         for (Item item : getArmor()) {
-            if (Utils.rand(1, 200) <= 17) {
-                drops.add(item);
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                if (Utils.rand(1, 200) <= 17 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 2) {
+                    drops.add(item);
+                }
+            } else {
+                if (Utils.rand(1, 200) <= 17) {
+                    drops.add(item);
+                }
             }
         }
         if (Utils.rand(1, 200) <= 17) {

@@ -5,9 +5,6 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntityExplosive;
 import cn.nukkit.entity.data.IntEntityData;
-import cn.nukkit.entity.mob.EntityCreeper;
-import cn.nukkit.entity.mob.EntitySkeleton;
-import cn.nukkit.entity.mob.EntityStray;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityExplosionPrimeEvent;
@@ -113,8 +110,11 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-
-        drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2)));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2)));
+        }
 
         if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {
             Entity killer = ((EntityDamageByEntityEvent) this.lastDamageCause).getDamager();

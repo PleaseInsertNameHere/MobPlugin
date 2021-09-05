@@ -79,11 +79,19 @@ public class CaveSpider extends Spider implements EntityArthropod {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-
-        drops.add(Item.get(Item.STRING, 0, Utils.rand(0, 2)));
-
-        if (Utils.rand(1, 3) == 1) {
-            drops.add(Item.get(Item.SPIDER_EYE, 0, 1));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.STRING, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.STRING, 0, Utils.rand(0, 2)));
+        }
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            if (Utils.rand(1, 3 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel()) > 2) {
+                drops.add(Item.get(Item.SPIDER_EYE, 0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1));
+            }
+        } else {
+            if (Utils.rand(1, 3) == 1) {
+                drops.add(Item.get(Item.SPIDER_EYE, 0, 1));
+            }
         }
 
         return drops.toArray(new Item[0]);

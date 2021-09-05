@@ -3,6 +3,8 @@ package nukkitcoders.mobplugin.entities.animal.swimming;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.MinecraftItemID;
 import cn.nukkit.level.Sound;
@@ -58,8 +60,14 @@ public class Turtle extends SwimmingAnimal {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-        drops.add(MinecraftItemID.SEAGRASS.get(Utils.rand(0, 2)));
-        // Todo: 1 Bowl if killed by a lightning
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(MinecraftItemID.SEAGRASS.get(Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(MinecraftItemID.SEAGRASS.get(Utils.rand(0, 2)));
+        }
+        if (this.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.LIGHTNING) {
+            drops.add(Item.get(Item.BOWL, 0, 1));
+        }
 
         return drops.toArray(new Item[0]);
     }

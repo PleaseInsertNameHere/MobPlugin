@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntitySmite;
-import cn.nukkit.entity.passive.EntityWolf;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
@@ -124,18 +123,34 @@ public class WitherSkeleton extends WalkingMonster implements EntitySmite {
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
 
-        drops.add(Item.get(Item.BONE, 0, Utils.rand(0, 2)));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.BONE, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            if (Utils.rand(1, 3) == 1) {
+                drops.add(Item.get(Item.COAL, 0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1));
+            }
 
-        if (Utils.rand(1, 3) == 1) {
-            drops.add(Item.get(Item.COAL, 0, 1));
-        }
+            if (Utils.rand(1, 200) <= 5 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 2) {
+                drops.add(Item.get(Item.SKULL, ItemSkull.WITHER_SKELETON_SKULL, 1));
+            }
 
-        if (Utils.rand(1, 200) <= 5) {
-            drops.add(Item.get(Item.SKULL, 1, 1));
-        }
+            if (Utils.rand(1, 200) <= 17 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 2) {
+                drops.add(Item.get(Item.STONE_SWORD, Utils.rand(0, Item.get(Item.STONE_SWORD).getMaxDurability()), 1));
+            }
+        } else {
+            drops.add(Item.get(Item.BONE, 0, Utils.rand(0, 2)));
 
-        if (Utils.rand(1, 200) <= 17) {
-            drops.add(Item.get(Item.STONE_SWORD, Utils.rand(0, 131), 1));
+
+            if (Utils.rand(1, 3) == 1) {
+                drops.add(Item.get(Item.COAL, 0, 1));
+            }
+
+            if (Utils.rand(1, 200) <= 5) {
+                drops.add(Item.get(Item.SKULL, 1, 1));
+            }
+
+            if (Utils.rand(1, 200) <= 17) {
+                drops.add(Item.get(Item.STONE_SWORD, Utils.rand(0, 131), 1));
+            }
         }
 
         if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {

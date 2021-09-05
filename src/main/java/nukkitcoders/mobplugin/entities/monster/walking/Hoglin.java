@@ -46,7 +46,8 @@ public class Hoglin extends WalkingMonster {
         if (this.isBaby()) {
             this.setDamage(new float[]{0, 0.5f, 0.5f, 0.75f});
         } else {
-            this.setDamage(new float[]{Utils.rand(2.5f, 5), Utils.rand(3, 8), Utils.rand(4.5f, 12)});
+            this.setDamage(new float[]{0f, 5f, 8f, 12f});
+            this.setMinDamage(new float[]{0f, 2.5f, 3f, 4.5f});
         }
     }
 
@@ -153,10 +154,19 @@ public class Hoglin extends WalkingMonster {
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
         if (this.isBaby()) {
-            drops.add(Item.get(this.isOnFire() ? Item.COOKED_PORKCHOP : Item.RAW_PORKCHOP, 0, Utils.rand(2, 4)));
-            drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 1)));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_PORKCHOP : Item.RAW_PORKCHOP, 0, Utils.rand(2, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 4)));
+            } else {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_PORKCHOP : Item.RAW_PORKCHOP, 0, Utils.rand(2, 4)));
+            }
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+            } else {
+                drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 1)));
+
+            }
         }
 
-        return drops.toArray(new Item[1]);
+        return drops.toArray(new Item[0]);
     }
 }

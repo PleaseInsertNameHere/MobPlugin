@@ -123,7 +123,11 @@ public class Enderman extends WalkingMonster {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-        drops.add(Item.get(Item.ENDER_PEARL, 0, Utils.rand(0, 1)));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.ENDER_PEARL, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+        } else {
+            drops.add(Item.get(Item.ENDER_PEARL, 0, Utils.rand(0, 1)));
+        }
         if (this.getItem() != null) {
             drops.add(this.getItem());
         }

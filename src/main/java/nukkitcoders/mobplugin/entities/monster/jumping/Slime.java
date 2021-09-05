@@ -150,7 +150,11 @@ public class Slime extends JumpingMonster {
 
             return new Item[]{};
         } else {
-            return new Item[]{Item.get(Item.SLIMEBALL, 0, Utils.rand(0, 2))};
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                return new Item[]{Item.get(Item.SLIMEBALL, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2))};
+            } else {
+                return new Item[]{Item.get(Item.SLIMEBALL, 0, Utils.rand(0, 2))};
+            }
         }
     }
 

@@ -28,12 +28,12 @@ public class Salmon extends Fish {
 
     @Override
     public float getWidth() {
-        return 0.7f;
+        return 0.5f;
     }
 
     @Override
     public float getHeight() {
-        return 0.4f;
+        return 0.5f;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class Salmon extends Fish {
         List<Item> drops = new ArrayList<>();
         drops.add(Item.get(this.isOnFire() ? Item.COOKED_SALMON : Item.RAW_SALMON, 0, 1));
         if (Utils.rand(1, 4) == 1) {
-            drops.add(Item.get(Item.BONE, 0, Utils.rand(1, 2)));
+            drops.add(Item.get(Item.BONE, 0, 1));
         }
 
         return drops.toArray(new Item[0]);

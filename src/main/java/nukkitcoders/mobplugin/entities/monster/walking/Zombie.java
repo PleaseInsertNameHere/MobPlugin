@@ -145,7 +145,11 @@ public class Zombie extends WalkingMonster implements EntityAgeable, EntitySmite
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-        drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
+        }
         if (!this.isBaby()) {
 
             if (this.tool != null) {
@@ -158,16 +162,16 @@ public class Zombie extends WalkingMonster implements EntityAgeable, EntitySmite
                 }
             }
 
-            switch (Utils.rand(1, 3)) {
-                case 1:
-                    drops.add(Item.get(Item.IRON_INGOT, 0, 1));
-                    break;
-                case 2:
-                    drops.add(Item.get(Item.CARROT, 0, 1));
-                    break;
-                case 3:
-                    drops.add(Item.get(this.isOnFire() ? Item.BAKED_POTATO : Item.POTATO, 0, 1));
-                    break;
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                if (Utils.rand(1, 1000) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 10) {
+                    Item[] droppingItem = new Item[]{Item.get(Item.IRON_INGOT), Item.get(Item.CARROT), Item.get(Item.POTATO)};
+                    drops.add(droppingItem[Utils.rand(0, droppingItem.length - 1)]);
+                }
+            } else {
+                if (Utils.rand(1, 40) == 1) {
+                    Item[] droppingItem = new Item[]{Item.get(Item.IRON_INGOT), Item.get(Item.CARROT), Item.get(Item.POTATO)};
+                    drops.add(droppingItem[Utils.rand(0, droppingItem.length - 1)]);
+                }
             }
         }
         if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {

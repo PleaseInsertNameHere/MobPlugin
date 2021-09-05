@@ -88,14 +88,24 @@ public class Vindicator extends WalkingMonster {
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
 
-        drops.add(Item.get(Item.EMERALD, 0, Utils.rand(0, 1)));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.EMERALD, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+        } else {
+            drops.add(Item.get(Item.EMERALD, 0, Utils.rand(0, 1)));
+        }
         if (this.getDataFlag(DATA_FLAGS, DATA_FLAG_IS_ILLAGER_CAPTAIN)) {
             Item illagerBanner = Item.get(Item.BANNER, 15);
             illagerBanner.setCompoundTag(Base64.getDecoder().decode("CgAAAwQAVHlwZQEAAAAA"));
             drops.add(illagerBanner);
         }
-        if (Utils.rand(1, 200) <= 17) {
-            drops.add(Item.get(Item.IRON_AXE, Utils.rand(1, Item.get(Item.IRON_AXE).getMaxDurability()), 1));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            if (Utils.rand(1, 200) <= 17 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 2) {
+                drops.add(Item.get(Item.IRON_AXE, Utils.rand(1, Item.get(Item.IRON_AXE).getMaxDurability()), 1));
+            }
+        } else {
+            if (Utils.rand(1, 200) <= 17) {
+                drops.add(Item.get(Item.IRON_AXE, Utils.rand(1, Item.get(Item.IRON_AXE).getMaxDurability()), 1));
+            }
         }
 
         return drops.toArray(new Item[0]);
