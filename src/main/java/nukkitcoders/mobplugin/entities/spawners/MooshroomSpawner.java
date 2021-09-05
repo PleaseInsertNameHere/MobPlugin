@@ -26,7 +26,7 @@ public class MooshroomSpawner extends AbstractEntitySpawner {
         int biomeId = level.getBiomeId((int) pos.x, (int) pos.z);
 
         if (Block.transparent[blockId]) {
-        } else if (biomeId != 14) {
+        } else if (biomeId != 14 && biomeId != 15) {
         } else if (pos.y > 255 || pos.y < 1 || blockId == Block.AIR) {
         } else if (MobPlugin.isAnimalSpawningAllowedByTime(level)) {
             BaseEntity entity = this.spawnTask.createEntity("Mooshroom", pos.add(0, 1, 0));

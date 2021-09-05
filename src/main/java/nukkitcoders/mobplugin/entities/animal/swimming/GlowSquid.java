@@ -1,19 +1,16 @@
 package nukkitcoders.mobplugin.entities.animal.swimming;
 
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
-import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.MinecraftItemID;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.network.protocol.EntityEventPacket;
-import nukkitcoders.mobplugin.entities.animal.SwimmingAnimal;
 import nukkitcoders.mobplugin.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GlowSquid extends SwimmingAnimal {
+public class GlowSquid extends Squid {
 
     public static final int NETWORK_ID = 129;
 
@@ -22,25 +19,8 @@ public class GlowSquid extends SwimmingAnimal {
     }
 
     @Override
-    public float getWidth() {
-        if (this.isBaby()) {
-            return 0.475f;
-        }
-        return 0.95f;
-    }
-
-    @Override
-    public float getHeight() {
-        if (this.isBaby()) {
-            return 0.475f;
-        }
-        return 0.95f;
-    }
-
-    @Override
-    public void initEntity() {
-        super.initEntity();
-        this.setMaxHealth(10);
+    public int getNetworkId() {
+        return NETWORK_ID;
     }
 
     @Override
@@ -55,33 +35,5 @@ public class GlowSquid extends SwimmingAnimal {
             }
         }
         return drops.toArray(new Item[0]);
-    }
-
-    @Override
-    public int getKillExperience() {
-        if (!this.isBaby()) {
-            return Utils.rand(1, 3);
-        }
-        return 0;
-    }
-
-    @Override
-    public int getNetworkId() {
-        return NETWORK_ID;
-    }
-
-    @Override
-    public boolean attack(EntityDamageEvent source) {
-        boolean att = super.attack(source);
-        if (source.isCancelled()) {
-            return att;
-        }
-
-        EntityEventPacket pk0 = new EntityEventPacket();
-        pk0.eid = this.getId();
-        pk0.event = EntityEventPacket.SQUID_INK_CLOUD;
-
-        this.level.addChunkPacket(this.getChunkX() >> 4, this.getChunkZ() >> 4, pk0);
-        return att;
     }
 }

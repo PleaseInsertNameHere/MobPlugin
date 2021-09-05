@@ -1,6 +1,7 @@
 package nukkitcoders.mobplugin.entities;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityAgeable;
 import cn.nukkit.entity.EntityCreature;
@@ -36,6 +37,8 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
     private boolean baby = false;
     private boolean movement = true;
     private boolean friendly = false;
+    //private int inEndPortal;
+    //private int inNetherPortal;
 
     public BaseEntity(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -208,6 +211,52 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
         }
 
         return true;
+    }
+
+    @Override
+    protected void checkBlockCollision() {
+        //boolean netherPortal = false;
+        //boolean endPortal = false;
+
+        for (Block block : this.getCollisionBlocks()) {
+            /*if (block.getId() == Block.NETHER_PORTAL) {
+                netherPortal = true;
+                continue;
+            } else if (block.getId() == Block.END_PORTAL) {
+                endPortal = true;
+                continue;
+            }*/
+
+            block.onEntityCollide(this);
+        }
+
+        /*if (endPortal) {
+            inEndPortal++;
+        } else {
+            inEndPortal = 0;
+        }
+
+        if (inEndPortal == 1) {
+            EntityPortalEnterEvent ev = new EntityPortalEnterEvent(this, EntityPortalEnterEvent.PortalType.END);
+            this.getServer().getPluginManager().callEvent(ev);
+            if (!ev.isCancelled()) {
+                //TODO
+            }
+        }
+
+        if (netherPortal) {
+            inNetherPortal++;
+        } else {
+            inNetherPortal = 0;
+        }
+
+        if (inNetherPortal == 80) {
+            EntityPortalEnterEvent ev = new EntityPortalEnterEvent(this, EntityPortalEnterEvent.PortalType.NETHER);
+            this.getServer().getPluginManager().callEvent(ev);
+            if (!ev.isCancelled()) {
+                //TODO
+            }
+        }*/
     }
 
     @Override

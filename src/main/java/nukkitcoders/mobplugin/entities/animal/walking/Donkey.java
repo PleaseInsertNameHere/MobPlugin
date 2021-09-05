@@ -78,6 +78,10 @@ public class Donkey extends HorseBase {
             } else {
                 drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 2)));
             }
+
+            if (this.isChested()) {
+                drops.add(Item.get(Item.CHEST, 0, 1));
+            }
         }
         if (this.isSaddled()) {
             drops.add(Item.get(Item.SADDLE, 0, 1));
@@ -99,14 +103,13 @@ public class Donkey extends HorseBase {
         this.namedTag.putBoolean("Chest", this.isChested());
     }
 
-
     public boolean isChested() {
         return this.chested;
     }
 
     public void setChested(boolean chested) {
         this.chested = chested;
-        this.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_CHESTED, chested);
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_CHESTED, chested);
     }
 
     @Override

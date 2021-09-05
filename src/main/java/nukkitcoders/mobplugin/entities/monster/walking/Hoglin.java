@@ -163,7 +163,6 @@ public class Hoglin extends WalkingMonster {
                 drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
             } else {
                 drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 1)));
-
             }
         }
 
