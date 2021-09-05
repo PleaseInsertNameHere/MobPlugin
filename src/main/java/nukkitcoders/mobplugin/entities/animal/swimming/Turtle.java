@@ -143,7 +143,7 @@ public class Turtle extends SwimmingAnimal {
     public boolean targetOption(EntityCreature creature, double distance) {
         if (creature instanceof Player) {
             Player player = (Player) creature;
-            return player.spawned && player.isAlive() && !player.closed && (player.getInventory().getItemInHand().getNamespaceId().equals(MinecraftItemID.SEAGRASS.getNamespacedId())) && distance <= 40;
+            return player.spawned && player.isAlive() && !player.closed && !player.getInventory().getItemInHand().isNull() && player.getInventory().getItemInHand().getNamespaceId().equals(MinecraftItemID.SEAGRASS.getNamespacedId()) && distance <= 40;
         }
         return false;
     }
