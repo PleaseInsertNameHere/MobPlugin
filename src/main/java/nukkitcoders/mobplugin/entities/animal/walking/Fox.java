@@ -94,6 +94,6 @@ public class Fox extends WalkingAnimal {
             }
         }
 
-        return drops.toArray(new Item[1]);
+        return drops.toArray(new Item[0]);
     }
 }

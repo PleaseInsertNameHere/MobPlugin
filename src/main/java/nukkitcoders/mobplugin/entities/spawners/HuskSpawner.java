@@ -6,9 +6,9 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import nukkitcoders.mobplugin.AutoSpawnTask;
 import nukkitcoders.mobplugin.MobPlugin;
+import nukkitcoders.mobplugin.entities.BaseEntity;
 import nukkitcoders.mobplugin.entities.autospawn.AbstractEntitySpawner;
 import nukkitcoders.mobplugin.entities.monster.walking.Husk;
-import nukkitcoders.mobplugin.entities.BaseEntity;
 import nukkitcoders.mobplugin.utils.Utils;
 
 /**

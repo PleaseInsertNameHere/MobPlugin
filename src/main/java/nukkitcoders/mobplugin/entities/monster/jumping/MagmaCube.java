@@ -1,7 +1,6 @@
 package nukkitcoders.mobplugin.entities.monster.jumping;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
@@ -9,13 +8,10 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.network.protocol.AnimateEntityPacket;
 import nukkitcoders.mobplugin.entities.monster.JumpingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class MagmaCube extends JumpingMonster {
 
@@ -132,7 +128,11 @@ public class MagmaCube extends JumpingMonster {
             level.getServer().getPluginManager().callEvent(ev);
 
             if (ev.isCancelled()) {
-                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+                if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                    return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1))};
+                } else {
+                    return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+                }
             }
 
             for (int i = 1; i <= Utils.rand(2, 4); i++) {
@@ -140,13 +140,21 @@ public class MagmaCube extends JumpingMonster {
                 entity.spawnToAll();
             }
 
-            return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1))};
+            } else {
+                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+            }
         } else if (this.size == SIZE_MEDIUM) {
             CreatureSpawnEvent ev = new CreatureSpawnEvent(NETWORK_ID, this, this.namedTag, CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
             level.getServer().getPluginManager().callEvent(ev);
 
             if (ev.isCancelled()) {
-                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+                if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                    return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1))};
+                } else {
+                    return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+                }
             }
 
 
@@ -155,7 +163,11 @@ public class MagmaCube extends JumpingMonster {
                 entity.spawnToAll();
             }
 
-            return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1))};
+            } else {
+                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+            }
         } else {
             return new Item[0];
         }
@@ -164,8 +176,8 @@ public class MagmaCube extends JumpingMonster {
     @Override
     public int getKillExperience() {
         if (this.size == SIZE_BIG) return 4;
-        if (this.size == SIZE_MEDIUM) return 2;
-        if (this.size == SIZE_SMALL) return 1;
+        else if (this.size == SIZE_MEDIUM) return 2;
+        else if (this.size == SIZE_SMALL) return 1;
         return 0;
     }
 

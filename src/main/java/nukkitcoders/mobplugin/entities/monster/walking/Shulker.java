@@ -2,6 +2,7 @@ package nukkitcoders.mobplugin.entities.monster.walking;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.ProjectileLaunchEvent;
 import cn.nukkit.item.Item;
@@ -13,6 +14,9 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.entities.projectile.EntityShulkerBullet;
 import nukkitcoders.mobplugin.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Shulker extends WalkingMonster {
 
@@ -103,7 +107,13 @@ public class Shulker extends WalkingMonster {
 
     @Override
     public Item[] getDrops() {
-        return new Item[]{Item.get(Item.SHULKER_SHELL, 0, Utils.rand(0, 1))};
+        List<Item> drops = new ArrayList<>();
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.SHULKER_SHELL, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+        } else {
+            drops.add(Item.get(Item.SHULKER_SHELL, 0, Utils.rand(0, 1)));
+        }
+        return drops.toArray(new Item[0]);
     }
 
     @Override

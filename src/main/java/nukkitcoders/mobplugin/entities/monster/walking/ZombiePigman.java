@@ -7,6 +7,7 @@ import cn.nukkit.entity.EntitySmite;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemID;
 import cn.nukkit.item.ItemSwordGold;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -141,12 +142,30 @@ public class ZombiePigman extends WalkingMonster implements EntitySmite {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 1)));
-            drops.add(Item.get(Item.GOLD_NUGGET, 0, Utils.rand(0, 1)));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+                drops.add(Item.get(Item.GOLD_NUGGET, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
 
-            if (Utils.rand(1, 40) == 1) {
-                drops.add(Item.get(Item.GOLD_SWORD, Utils.rand(1, Item.get(Item.GOLDEN_SWORD).getMaxDurability()), 1));
+                if (Utils.rand(1, 1000) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 10) {
+                    drops.add(Item.get(Item.GOLD_INGOT, 0, 1));
+                }
+
+                if (Utils.rand(1, 100) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 5) {
+                    drops.add(Item.get(ItemID.GOLDEN_SWORD, Utils.rand(0, Item.get(ItemID.GOLDEN_SWORD).getMaxDurability()), 1));
+                }
+            } else {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 1)));
+                drops.add(Item.get(Item.GOLD_NUGGET, 0, Utils.rand(0, 1)));
+
+                if (Utils.rand(1, 40) == 1) {
+                    drops.add(Item.get(Item.GOLD_INGOT, 0, 1));
+                }
+
+                if (Utils.rand(1, 4) == 1) {
+                    drops.add(Item.get(ItemID.GOLDEN_SWORD, Utils.rand(0, Item.get(ItemID.GOLDEN_SWORD).getMaxDurability()), 1));
+                }
             }
+
         }
 
         return drops.toArray(new Item[0]);

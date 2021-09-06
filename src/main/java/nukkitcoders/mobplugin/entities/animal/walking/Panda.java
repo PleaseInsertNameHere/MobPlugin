@@ -3,6 +3,7 @@ package nukkitcoders.mobplugin.entities.animal.walking;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.BlockBamboo;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.MinecraftItemID;
 import cn.nukkit.level.Sound;
@@ -60,8 +61,12 @@ public class Panda extends WalkingAnimal {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-        drops.add(Item.get(MinecraftItemID.BAMBOO.get(1).getId(), 0, Utils.rand(0, 2)));
-        return drops.toArray(new Item[1]);
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(MinecraftItemID.BAMBOO.get(1).getId(), 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(MinecraftItemID.BAMBOO.get(1).getId(), 0, Utils.rand(0, 2)));
+        }
+        return drops.toArray(new Item[0]);
     }
 
     @Override
@@ -101,8 +106,8 @@ public class Panda extends WalkingAnimal {
                 entityruntimeids.add(this.getId());
                 packet.setEntityRuntimeIds(entityruntimeids);
                 for (Player all : Server.getInstance().getOnlinePlayers().values())
-                all.dataPacket(packet);
-               // this.setDataFlag(DATA_FLAGS, DATA_FLAG_SITTING, true); // doesnt work for pandas
+                    all.dataPacket(packet);
+                // this.setDataFlag(DATA_FLAGS, DATA_FLAG_SITTING, true); // doesnt work for pandas
             }
 
 

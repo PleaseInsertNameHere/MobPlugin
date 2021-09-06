@@ -98,7 +98,7 @@ public class Vex extends FlyingMonster {
         List<Item> drops = new ArrayList<>();
         drops.add(Item.get(Item.IRON_SWORD, Utils.rand(1, ItemTool.DURABILITY_IRON), 1));
 
-        return drops.toArray(new Item[1]);
+        return drops.toArray(new Item[0]);
     }
 
     @Override

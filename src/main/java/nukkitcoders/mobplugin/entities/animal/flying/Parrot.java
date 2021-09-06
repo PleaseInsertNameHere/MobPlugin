@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.data.IntEntityData;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
@@ -16,6 +17,8 @@ import nukkitcoders.mobplugin.entities.animal.FlyingAnimal;
 import nukkitcoders.mobplugin.utils.Utils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Parrot extends FlyingAnimal {
 
@@ -69,7 +72,14 @@ public class Parrot extends FlyingAnimal {
 
     @Override
     public Item[] getDrops() {
-        return new Item[]{Item.get(Item.FEATHER, 0, Utils.rand(1, 2))};
+        List<Item> drops = new ArrayList<>();
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.FEATHER, 0, Utils.rand(1, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.FEATHER, 0, Utils.rand(1, 2)));
+        }
+
+        return drops.toArray(new Item[0]);
     }
 
     @Override

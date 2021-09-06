@@ -7,8 +7,8 @@ import cn.nukkit.level.Position;
 import nukkitcoders.mobplugin.AutoSpawnTask;
 import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.entities.BaseEntity;
-import nukkitcoders.mobplugin.entities.monster.walking.Goat;
 import nukkitcoders.mobplugin.entities.autospawn.AbstractEntitySpawner;
+import nukkitcoders.mobplugin.entities.monster.walking.Goat;
 import nukkitcoders.mobplugin.utils.Utils;
 
 public class GoatSpawner extends AbstractEntitySpawner {
@@ -22,7 +22,7 @@ public class GoatSpawner extends AbstractEntitySpawner {
 
         int biomeId = level.getBiomeId((int) pos.x, (int) pos.z);
 
-            if(biomeId != 20 && biomeId != 3 && biomeId != 34 && biomeId != 31 && biomeId != 5) {
+        if (biomeId != 20 && biomeId != 3 && biomeId != 34 && biomeId != 31 && biomeId != 5) {
             return;
         }
 

@@ -3,7 +3,7 @@ package nukkitcoders.mobplugin.entities.animal.walking;
 import cn.nukkit.Player;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.data.IntEntityData;
-import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -19,11 +19,9 @@ import java.util.List;
 public class Horse extends HorseBase {
 
     public static final int NETWORK_ID = 23;
-
-    public int variant;
-
     private static final int[] VARIANTS = {0, 1, 2, 3, 4, 5, 6, 256, 257, 258, 259, 260, 261, 262, 512, 513, 514, 515, 516, 517, 518,
             768, 769, 770, 771, 772, 773, 774, 1024, 1025, 1026, 1027, 1028, 1029, 1030};
+    public int variant;
 
     public Horse(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -87,8 +85,10 @@ public class Horse extends HorseBase {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            for (int i = 0; i < Utils.rand(0, 2); i++) {
-                drops.add(Item.get(Item.LEATHER, 0, 1));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 2)));
             }
         }
 

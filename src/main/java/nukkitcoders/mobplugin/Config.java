@@ -44,7 +44,7 @@ public class Config {
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
                 return false;
             }
-            
+
             if (current < 16) {
                 pluginConfig.set("spawners.enabled", true);
                 pluginConfig.set("spawners.spawn-range", 4);
@@ -63,21 +63,21 @@ public class Config {
             if (current < 15) {
                 pluginConfig.set("other.check-tamed-entity-attack", true);
             }
-            
+
             if (current < 14) {
                 pluginConfig.set("autospawn.piglin", 0);
             }
-            
+
             if (current < 13) {
                 pluginConfig.set("autospawn.fox", 0);
                 pluginConfig.set("autospawn.panda", 0);
                 pluginConfig.set("autospawn.drowned", 0);
             }
-            
+
             if (current < 12) {
                 pluginConfig.set("other.end-enderman-spawning", 10);
             }
-            
+
             if (current < 11) {
                 pluginConfig.set("other.kill-mobs-on-despawn", false);
             }

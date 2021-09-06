@@ -110,8 +110,11 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-
-        drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2)));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2)));
+        }
 
         if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {
             Entity killer = ((EntityDamageByEntityEvent) this.lastDamageCause).getDamager();

@@ -55,11 +55,17 @@ public abstract class TameableMonster extends WalkingMonster implements Tameable
         return this.owner;
     }
 
+    public void setOwner(Player player) {
+        this.owner = player;
+        this.setDataProperty(new LongEntityData(DATA_OWNER_EID, player.getId()));
+        this.setTamed(true);
+    }
+
     @Override
     public boolean hasOwner() {
         return hasOwner(true);
     }
-    
+
     public boolean hasOwner(boolean checkOnline) {
         if (checkOnline) {
             this.checkOwner();
@@ -71,12 +77,6 @@ public abstract class TameableMonster extends WalkingMonster implements Tameable
             }
             return false;
         }
-    }
-
-    public void setOwner(Player player) {
-        this.owner = player;
-        this.setDataProperty(new LongEntityData(DATA_OWNER_EID, player.getId()));
-        this.setTamed(true);
     }
 
     @Override
@@ -117,10 +117,10 @@ public abstract class TameableMonster extends WalkingMonster implements Tameable
 
         return super.updateMove(tickDiff);
     }
-    
+
     /**
-      * If the owner is online, set owner properly
-      */
+     * If the owner is online, set owner properly
+     */
     public void checkOwner() {
         if (this.owner == null && this.namedTag != null) {
             String ownerName = namedTag.getString(NAMED_TAG_OWNER);

@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.data.ByteEntityData;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemDye;
 import cn.nukkit.level.format.FullChunk;
@@ -125,24 +126,24 @@ public class Sheep extends WalkingAnimal {
 
         if (!this.isBaby()) {
             if (!sheared) drops.add(Item.get(Item.WOOL, this.getColor(), 1));
-
-            for (int i = 0; i < Utils.rand(1, 2); i++) {
-                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, 1));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, Utils.rand(1, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, Utils.rand(1, 2)));
             }
         }
 
         return drops.toArray(new Item[0]);
     }
 
+    public int getColor() {
+        return namedTag.getByte("Color");
+    }
 
     public void setColor(int woolColor) {
         this.color = woolColor;
         this.namedTag.putByte("Color", woolColor);
         this.setDataProperty(new ByteEntityData(DATA_COLOUR, woolColor));
-    }
-
-    public int getColor() {
-        return namedTag.getByte("Color");
     }
 
     private int randomColor() {

@@ -4,8 +4,8 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
-import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.AutoSpawnTask;
+import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.entities.autospawn.AbstractEntitySpawner;
 import nukkitcoders.mobplugin.entities.monster.walking.Drowned;
 
@@ -24,7 +24,7 @@ public class DrownedSpawner extends AbstractEntitySpawner {
         } else if (pos.y > 255 || pos.y < 1) {
         } else if (level.getBlockLightAt((int) pos.x, (int) pos.y, (int) pos.z) > 7) {
         } else if (MobPlugin.isMobSpawningAllowedByTime(level)) {
-            int b = level.getBlockIdAt((int) pos.x, (int) (pos.y -1), (int) pos.z);
+            int b = level.getBlockIdAt((int) pos.x, (int) (pos.y - 1), (int) pos.z);
             if (b == Block.WATER || b == Block.STILL_WATER) {
                 this.spawnTask.createEntity("Drowned", pos.add(0, -1, 0));
             }

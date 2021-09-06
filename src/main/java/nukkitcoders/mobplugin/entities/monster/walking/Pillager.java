@@ -5,6 +5,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.projectile.EntityArrow;
 import cn.nukkit.entity.projectile.EntityProjectile;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityShootBowEvent;
 import cn.nukkit.event.entity.ProjectileLaunchEvent;
 import cn.nukkit.item.Item;
@@ -111,7 +112,21 @@ public class Pillager extends WalkingMonster {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-        drops.add(Item.get(Item.ARROW, 0, Utils.rand(0, 2)));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.ARROW, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.ARROW, 0, Utils.rand(0, 2)));
+        }
+
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            if (Utils.rand(1, 200) <= 17 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 2) {
+                drops.add(Item.get(Item.CROSSBOW, Utils.rand(1, Item.get(Item.CROSSBOW).getMaxDurability()), 1));
+            }
+        } else {
+            if (Utils.rand(1, 200) <= 17) {
+                drops.add(Item.get(Item.CROSSBOW, Utils.rand(1, Item.get(Item.CROSSBOW).getMaxDurability()), 1));
+            }
+        }
 
         if (this.getDataFlag(DATA_FLAGS, DATA_FLAG_IS_ILLAGER_CAPTAIN)) {
             Item illagerBanner = Item.get(Item.BANNER, 15);

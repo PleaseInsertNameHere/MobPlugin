@@ -4,11 +4,11 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
-import nukkitcoders.mobplugin.MobPlugin;
-import nukkitcoders.mobplugin.entities.animal.walking.Mooshroom;
 import nukkitcoders.mobplugin.AutoSpawnTask;
-import nukkitcoders.mobplugin.entities.autospawn.AbstractEntitySpawner;
+import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.entities.BaseEntity;
+import nukkitcoders.mobplugin.entities.animal.walking.Mooshroom;
+import nukkitcoders.mobplugin.entities.autospawn.AbstractEntitySpawner;
 import nukkitcoders.mobplugin.utils.Utils;
 
 /**
@@ -26,7 +26,7 @@ public class MooshroomSpawner extends AbstractEntitySpawner {
         int biomeId = level.getBiomeId((int) pos.x, (int) pos.z);
 
         if (Block.transparent[blockId]) {
-        } else if (biomeId != 14) {
+        } else if (biomeId != 14 && biomeId != 15) {
         } else if (pos.y > 255 || pos.y < 1 || blockId == Block.AIR) {
         } else if (MobPlugin.isAnimalSpawningAllowedByTime(level)) {
             BaseEntity entity = this.spawnTask.createEntity("Mooshroom", pos.add(0, 1, 0));

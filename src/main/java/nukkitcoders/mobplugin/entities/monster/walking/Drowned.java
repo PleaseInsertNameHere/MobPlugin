@@ -137,21 +137,36 @@ public class Drowned extends WalkingMonster implements EntitySmite {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
-
-            if (Utils.rand(1, 100) <= 11) {
-                drops.add(MinecraftItemID.COPPER_INGOT.get(1));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
+            }
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                if (Utils.rand(1, 100) <= 11 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 2) {
+                    drops.add(MinecraftItemID.COPPER_INGOT.get(1));
+                }
+            } else {
+                if (Utils.rand(1, 100) <= 11) {
+                    drops.add(MinecraftItemID.COPPER_INGOT.get(1));
+                }
             }
 
-            if (tool.getId() == Item.get(Item.NAUTILUS_SHELL).getId()) {
+            /*if (tool.getId() == Item.NAUTILUS_SHELL) {
                 drops.add(tool);
             }
 
-            if (tool.getId() == Item.get(Item.TRIDENT).getId()) {
-                if (Utils.rand(1, 4) == 1) {
-                    drops.add(tool);
+            if (tool.getId() == Item.TRIDENT) {
+                if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                    if (Utils.rand(1, 100) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 4) {
+                        drops.add(tool);
+                    }
+                } else {
+                    if (Utils.rand(1, 4) == 1) {
+                        drops.add(tool);
+                    }
                 }
-            }
+            }*/
         }
 
         return drops.toArray(new Item[0]);
@@ -161,7 +176,7 @@ public class Drowned extends WalkingMonster implements EntitySmite {
     public int getKillExperience() {
         int xp = this.isBaby() ? 12 : 5;
         if (this.tool != null) {
-            Utils.rand(1,3);
+            Utils.rand(1, 3);
         }
         return xp;
     }

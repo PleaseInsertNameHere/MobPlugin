@@ -12,18 +12,14 @@ import nukkitcoders.mobplugin.utils.Utils;
 
 public abstract class WalkingMonster extends WalkingEntity implements Monster {
 
-    protected float[] minDamage;
-
-    protected float[] maxDamage;
-
-    protected boolean canAttack = true;
-
     public long isAngryTo = -1L;
+    protected float[] minDamage;
+    protected float[] maxDamage;
+    protected boolean canAttack = true;
 
     public WalkingMonster(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
     }
-
 
 
     @Override
@@ -40,41 +36,8 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
         return getDamage(null);
     }
 
-    public float getDamage(Integer difficulty) {
-        return Utils.rand(this.getMinDamage(difficulty), this.getMaxDamage(difficulty));
-    }
-
-    public float getMinDamage() {
-        return getMinDamage(null);
-    }
-
-    public float getMinDamage(Integer difficulty) {
-        if (difficulty == null || difficulty > 3 || difficulty < 0) {
-            difficulty = Server.getInstance().getDifficulty();
-        }
-        return this.minDamage[difficulty];
-    }
-
-    public float getMaxDamage() {
-        return getMaxDamage(null);
-    }
-
-    public float getMaxDamage(Integer difficulty) {
-        if (difficulty == null || difficulty > 3 || difficulty < 0) {
-            difficulty = Server.getInstance().getDifficulty();
-        }
-        return this.maxDamage[difficulty];
-    }
-
     public void setDamage(float damage) {
         this.setDamage(damage, Server.getInstance().getDifficulty());
-    }
-
-    public void setDamage(float damage, int difficulty) {
-        if (difficulty >= 1 && difficulty <= 3) {
-            this.minDamage[difficulty] = damage;
-            this.maxDamage[difficulty] = damage;
-        }
     }
 
     public void setDamage(float[] damage) {
@@ -83,17 +46,25 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
         }
 
         if (minDamage == null || minDamage.length < 4) {
-            minDamage = new float[] { 0, 0, 0, 0 };
+            minDamage = new float[]{0, 0, 0, 0};
         }
 
         if (maxDamage == null || maxDamage.length < 4) {
-            maxDamage = new float[] { 0, 0, 0, 0 };
+            maxDamage = new float[]{0, 0, 0, 0};
         }
 
         for (int i = 0; i < 4; i++) {
             this.minDamage[i] = damage[i];
             this.maxDamage[i] = damage[i];
         }
+    }
+
+    public float getDamage(Integer difficulty) {
+        return Utils.rand(this.getMinDamage(difficulty), this.getMaxDamage(difficulty));
+    }
+
+    public float getMinDamage() {
+        return getMinDamage(null);
     }
 
     public void setMinDamage(float[] damage) {
@@ -110,10 +81,15 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
         this.setMinDamage(damage, Server.getInstance().getDifficulty());
     }
 
-    public void setMinDamage(float damage, int difficulty) {
-        if (difficulty >= 1 && difficulty <= 3) {
-            this.minDamage[difficulty] = Math.min(damage, this.getMaxDamage(difficulty));
+    public float getMinDamage(Integer difficulty) {
+        if (difficulty == null || difficulty > 3 || difficulty < 0) {
+            difficulty = Server.getInstance().getDifficulty();
         }
+        return this.minDamage[difficulty];
+    }
+
+    public float getMaxDamage() {
+        return getMaxDamage(null);
     }
 
     public void setMaxDamage(float[] damage) {
@@ -127,6 +103,26 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
 
     public void setMaxDamage(float damage) {
         setMinDamage(damage, Server.getInstance().getDifficulty());
+    }
+
+    public float getMaxDamage(Integer difficulty) {
+        if (difficulty == null || difficulty > 3 || difficulty < 0) {
+            difficulty = Server.getInstance().getDifficulty();
+        }
+        return this.maxDamage[difficulty];
+    }
+
+    public void setDamage(float damage, int difficulty) {
+        if (difficulty >= 1 && difficulty <= 3) {
+            this.minDamage[difficulty] = damage;
+            this.maxDamage[difficulty] = damage;
+        }
+    }
+
+    public void setMinDamage(float damage, int difficulty) {
+        if (difficulty >= 1 && difficulty <= 3) {
+            this.minDamage[difficulty] = Math.min(damage, this.getMaxDamage(difficulty));
+        }
     }
 
     public void setMaxDamage(float damage, int difficulty) {
@@ -165,10 +161,11 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
             Entity entity = (Entity) target;
 
             if (!entity.closed && (target != this.followTarget || this.canAttack)) {
-                if(this instanceof Goat) {
-                    if(this.attackDelay > 360) {
+                if (this instanceof Goat) {
+                    if (this.attackDelay > 360) {
                         this.attackEntity(entity);
-                    } if(this.jumpDelay > 60) {
+                    }
+                    if (this.jumpDelay > 60) {
                         this.jumpEntity(entity); // not working
                     }
                 } else {

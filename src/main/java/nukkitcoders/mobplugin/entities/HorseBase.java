@@ -91,7 +91,7 @@ public class HorseBase extends WalkingAnimal implements EntityRideable {
             this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), Item.get(item.getId(), 0, 1)));
             this.setInLove();
             return true;
-        } else if (this.canBeSaddled() && !this.isSaddled() && item.equals(Item.get(Item.SADDLE))) {
+        } else if (this.canBeSaddled() && !this.isSaddled() && item.getId() == Item.SADDLE) {
             player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
             this.level.addLevelSoundEvent(this, LevelSoundEventPacket.SOUND_SADDLE);
             this.setSaddled(true);

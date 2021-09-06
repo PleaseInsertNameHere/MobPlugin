@@ -19,21 +19,6 @@ import nukkitcoders.mobplugin.utils.Utils;
 
 public class BlockEntitySpawner extends BlockEntitySpawnable {
 
-    private int entityId;
-    private int spawnRange;
-    private int maxNearbyEntities;
-    private int requiredPlayerRange;
-
-    private int delay = 0;
-
-    private int minSpawnDelay;
-    private int maxSpawnDelay;
-
-    private int minSpawnCount;
-    private int maxSpawnCount;
-
-    private final NukkitRandom nukkitRandom = new NukkitRandom();
-
     public static final String TAG_ID = "id";
     public static final String TAG_X = "x";
     public static final String TAG_Y = "y";
@@ -46,7 +31,6 @@ public class BlockEntitySpawner extends BlockEntitySpawnable {
     public static final String TAG_REQUIRED_PLAYER_RANGE = "RequiredPlayerRange";
     public static final String TAG_MINIMUM_SPAWN_COUNT = "MinimumSpawnerCount";
     public static final String TAG_MAXIMUM_SPAWN_COUNT = "MaximumSpawnerCount";
-
     public static final int SPAWN_RANGE = MobPlugin.getInstance().config.spawnerRange;
     public static final int MINIMUM_SPAWN_COUNT = MobPlugin.getInstance().config.spawnerMinSpawnCount;
     public static final int MAXIMUM_SPAWN_COUNT = MobPlugin.getInstance().config.spawnerMaxSpawnCount;
@@ -54,6 +38,16 @@ public class BlockEntitySpawner extends BlockEntitySpawnable {
     public static final int MAX_SPAWN_DELAY = MobPlugin.getInstance().config.spawnerMaxDelay;
     public static final int MAX_NEARBY_ENTITIES = MobPlugin.getInstance().config.spawnerMaxNearby;
     public static final int REQUIRED_PLAYER_RANGE = MobPlugin.getInstance().config.spawnerRequiredPlayerRange;
+    private final NukkitRandom nukkitRandom = new NukkitRandom();
+    private int entityId;
+    private int spawnRange;
+    private int maxNearbyEntities;
+    private int requiredPlayerRange;
+    private int delay = 0;
+    private int minSpawnDelay;
+    private int maxSpawnDelay;
+    private int minSpawnCount;
+    private int maxSpawnCount;
 
     public BlockEntitySpawner(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -135,25 +129,30 @@ public class BlockEntitySpawner extends BlockEntitySpawnable {
                                     this.z + Utils.rand(-this.spawnRange, this.spawnRange),
                                     this.level
                             );
+
+                    for (int y = -3; y <= 3; y++) {
+                        Block block = level.getBlock(pos.add(0, y, 0));
+                        //Mobs shouldn't spawn in walls and they shouldn't retry to
+                        if (
+                                block.getId() == 0 || block.getId() == BlockID.SIGN_POST || block.getId() == BlockID.WALL_SIGN ||
+                                        block.getId() == BlockID.STILL_WATER && block.getId() == BlockID.FLOWING_WATER ||
+                                        block.getId() == BlockID.FLOWING_LAVA || block.getId() == BlockID.STILL_LAVA
+                        ) {
+                            pos.y += y;
+                            break;
+                        }
+                    }
                     Block block = level.getBlock(pos);
-                    //Mobs shouldn't spawn in walls and they shouldn't retry to
                     if (
                             block.getId() != 0 && block.getId() != BlockID.SIGN_POST && block.getId() != BlockID.WALL_SIGN &&
-                            block.getId() != BlockID.STILL_WATER && block.getId() != BlockID.WATER &&
-                            block.getId() != BlockID.LAVA && block.getId() != BlockID.STILL_LAVA
+                                    block.getId() != BlockID.STILL_WATER && block.getId() != BlockID.FLOWING_WATER &&
+                                    block.getId() != BlockID.FLOWING_LAVA && block.getId() != BlockID.STILL_LAVA
                     ) {
                         continue;
                     }
 
-                for (int y = (int) pos.y; y <= 256; y++) {
-                    if (!level.getBlock((int) this.x, y, (int) this.z).isSolid()) {
-                        pos.y = y;
-                        break;
-                    }
-                }
-
-                CreatureSpawnEvent ev = new CreatureSpawnEvent(this.entityId, pos, new CompoundTag(), CreatureSpawnEvent.SpawnReason.SPAWNER);
-                level.getServer().getPluginManager().callEvent(ev);
+                    CreatureSpawnEvent ev = new CreatureSpawnEvent(this.entityId, pos, new CompoundTag(), CreatureSpawnEvent.SpawnReason.SPAWNER);
+                    level.getServer().getPluginManager().callEvent(ev);
 
                     if (ev.isCancelled()) {
                         continue;

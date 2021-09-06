@@ -45,7 +45,7 @@ public class Endermite extends WalkingMonster implements EntityArthropod {
         super.initEntity();
 
         this.setMaxHealth(8);
-        this.setDamage(new float[] { 0, 2, 2, 3 });
+        this.setDamage(new float[]{0, 2, 2, 3});
     }
 
     @Override

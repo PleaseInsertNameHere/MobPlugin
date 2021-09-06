@@ -39,7 +39,7 @@ public class WitherSkullExplosion extends Explosion {
     private final Object what;
     private boolean doesDamage = true;
     private List<Block> affectedBlocks = new ArrayList<>();
-    
+
     public WitherSkullExplosion(Position center, double size, Entity what) {
         super(center, size, what);
         this.level = center.getLevel();

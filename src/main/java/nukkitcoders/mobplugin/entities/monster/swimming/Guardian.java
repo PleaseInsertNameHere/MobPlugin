@@ -136,13 +136,25 @@ public class Guardian extends SwimmingMonster {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-        drops.add(Item.get(Item.PRISMARINE_SHARD, 0, Utils.rand(0, 2)));
-        int rnd = Utils.rand(1, 5);
-        if (rnd == 1 || rnd == 2) {
-            drops.add(Item.get(Item.PRISMARINE_CRYSTALS, 0, Utils.rand(0, 2)));
-
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.PRISMARINE_SHARD, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.PRISMARINE_SHARD, 0, Utils.rand(0, 2)));
         }
-        return drops.toArray(new Item[1]);
+
+        int random = Utils.rand(1, 5);
+        if (random != 3) {
+            Item item = Item.get(random <= 2 ? this.isOnFire() ? Item.COOKED_FISH : Item.RAW_FISH : Item.PRISMARINE_CRYSTALS, 0, 1);
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                for (int i = 0; i < ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel(); i++) {
+                    if (Utils.rand(1, 5) <= 2) {
+                        item.count++;
+                    }
+                }
+            }
+            drops.add(item);
+        }
+        return drops.toArray(new Item[0]);
     }
 
     @Override

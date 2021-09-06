@@ -50,6 +50,23 @@ public class AutoSpawnTask implements Runnable {
         prepareSpawnerClasses();
     }
 
+    private static boolean spawningAllowedByDimension(int id, int dimension) {
+        switch (id) {
+            case Enderman.NETWORK_ID:
+                return true;
+            case Blaze.NETWORK_ID:
+            case Ghast.NETWORK_ID:
+            case MagmaCube.NETWORK_ID:
+            case Piglin.NETWORK_ID:
+            case WitherSkeleton.NETWORK_ID:
+            case ZombiePigman.NETWORK_ID:
+            case Hoglin.NETWORK_ID:
+                return Level.DIMENSION_NETHER == dimension;
+            default:
+                return Level.DIMENSION_OVERWORLD == dimension;
+        }
+    }
+
     @Override
     public void run() {
         if (!plugin.getServer().getOnlinePlayers().isEmpty()) {
@@ -289,22 +306,5 @@ public class AutoSpawnTask implements Runnable {
             }
         }
         return y;
-    }
-
-    private static boolean spawningAllowedByDimension(int id, int dimension) {
-        switch (id) {
-            case Enderman.NETWORK_ID:
-                return true;
-            case Blaze.NETWORK_ID:
-            case Ghast.NETWORK_ID:
-            case MagmaCube.NETWORK_ID:
-            case Piglin.NETWORK_ID:
-            case WitherSkeleton.NETWORK_ID:
-            case ZombiePigman.NETWORK_ID:
-            case Hoglin.NETWORK_ID:
-                return Level.DIMENSION_NETHER == dimension;
-            default:
-                return Level.DIMENSION_OVERWORLD == dimension;
-        }
     }
 }

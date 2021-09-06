@@ -3,6 +3,7 @@ package nukkitcoders.mobplugin.entities.animal.swimming;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
@@ -14,6 +15,8 @@ import nukkitcoders.mobplugin.entities.animal.SwimmingAnimal;
 import nukkitcoders.mobplugin.utils.Utils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Dolphin extends SwimmingAnimal {
 
@@ -54,7 +57,14 @@ public class Dolphin extends SwimmingAnimal {
 
     @Override
     public Item[] getDrops() {
-        return new Item[]{Item.get(this.isOnFire() ? Item.COOKED_FISH : Item.RAW_FISH, 0, Utils.rand(0, 1))};
+        List<Item> drops = new ArrayList<>();
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(this.isOnFire() ? Item.COOKED_FISH : Item.RAW_FISH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+        } else {
+            drops.add(Item.get(this.isOnFire() ? Item.COOKED_FISH : Item.RAW_FISH, 0, Utils.rand(0, 1)));
+        }
+
+        return drops.toArray(new Item[0]);
     }
 
     @Override
