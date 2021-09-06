@@ -1,6 +1,7 @@
 package nukkitcoders.mobplugin.entities.animal.swimming;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
@@ -143,7 +144,7 @@ public class Turtle extends SwimmingAnimal {
     public boolean targetOption(EntityCreature creature, double distance) {
         if (creature instanceof Player) {
             Player player = (Player) creature;
-            return player.spawned && player.isAlive() && !player.closed && !player.getInventory().getItemInHand().isNull() && player.getInventory().getItemInHand().getNamespaceId().equals(MinecraftItemID.SEAGRASS.getNamespacedId()) && distance <= 40;
+            return player.spawned && player.isAlive() && !player.closed && player.getInventory().getItemInHand().getId() == 255 - Block.SEAGRASS && distance <= 40;
         }
         return false;
     }
