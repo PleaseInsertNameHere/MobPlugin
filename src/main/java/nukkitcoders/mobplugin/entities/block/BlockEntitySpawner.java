@@ -113,7 +113,7 @@ public class BlockEntitySpawner extends BlockEntitySpawnable {
                         playerInRange = true;
                     }
                 } else if (entity instanceof BaseEntity) {
-                    if (entity.distance(this) <= this.requiredPlayerRange) {
+                    if (entity.distance(this) <= 9) {
                         nearbyEntities++;
                     }
                 }
