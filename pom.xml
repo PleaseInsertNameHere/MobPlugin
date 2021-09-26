@@ -83,9 +83,11 @@
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>com.github.Superzock3003</groupId>
-            <artifactId>PowerNukkit</artifactId>
-            <version>v1.17-SNAPSHOT</version>
+            <groupId>org.powernukkit</groupId>
+            <artifactId>powernukkit</artifactId>
+            <version>1.5.2.0-PN</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/powernukkit.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

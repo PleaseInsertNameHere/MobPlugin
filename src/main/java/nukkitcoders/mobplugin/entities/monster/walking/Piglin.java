@@ -236,7 +236,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
 
     @Override
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
-        if (item.getId() == Item.get(Item.GOLD_INGOT).getId() && !this.isTrading()) {
+        /*if (item.getId() == Item.get(Item.GOLD_INGOT).getId() && !this.isTrading()) {
             this.setDataFlag(DATA_FLAGS, DATA_FLAG_ADMIRING, true);
             setTrading(true);
             Item cloneitem = item.clone();
@@ -279,7 +279,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                 }
             }, 20 * 6);
             return true;
-        }
+        }*/
         return super.onInteract(player, item, clickedPos);
     }
 
@@ -392,7 +392,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
         }
 
 
-        if (!this.isTrading() && this.stayTime <= 0) {
+        /*if (!this.isTrading() && this.stayTime <= 0) {
             if (target == null || (target instanceof Entity && ((Entity) target).closed) || !(target instanceof Entity)) {
                 for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(16, 16, 16), this)) {
                     if (entity instanceof EntityItem) {
@@ -528,7 +528,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                     }
                 }
             }
-        }
+        }*/
 
         if (isRunning) {
             this.stayTime = 0;
