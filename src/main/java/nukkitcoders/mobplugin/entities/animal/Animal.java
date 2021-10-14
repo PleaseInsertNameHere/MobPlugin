@@ -1,6 +1,5 @@
 package nukkitcoders.mobplugin.entities.animal;
 
-import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityAgeable;
 
 /**

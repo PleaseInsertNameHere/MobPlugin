@@ -4,15 +4,17 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntitySmite;
-import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.monster.FlyingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Phantom extends FlyingMonster implements EntitySmite {
 
@@ -47,7 +49,7 @@ public class Phantom extends FlyingMonster implements EntitySmite {
         super.initEntity();
 
         this.setMaxHealth(20);
-        this.setDamage(new float[] { 0, 4, 6, 9 });
+        this.setDamage(new float[]{0, 4, 6, 9});
     }
 
     public boolean targetOption(EntityCreature creature, double distance) {
@@ -87,7 +89,14 @@ public class Phantom extends FlyingMonster implements EntitySmite {
 
     @Override
     public Item[] getDrops() {
-        return new Item[]{Item.get(Item.PHANTOM_MEMBRANE, 0, Utils.rand(0, 1))};
+        List<Item> drops = new ArrayList<>();
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.PHANTOM_MEMBRANE, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
+        } else {
+            drops.add(Item.get(Item.PHANTOM_MEMBRANE, 0, Utils.rand(0, 1)));
+        }
+
+        return drops.toArray(new Item[0]);
     }
 
     @Override

@@ -5,6 +5,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.item.EntityPotion;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.ProjectileLaunchEvent;
 import cn.nukkit.item.Item;
@@ -41,7 +42,7 @@ public class Witch extends WalkingMonster {
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return 1.9f;
     }
 
     @Override
@@ -115,30 +116,33 @@ public class Witch extends WalkingMonster {
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
 
-        if (Utils.rand(1, 4) == 1) {
-            drops.add(Item.get(Item.STICK, 0, Utils.rand(0, 2)));
+        int lootingLevel = 0;
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            lootingLevel = ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel();
         }
-
-        if (Utils.rand(1, 3) == 1) {
-            switch (Utils.rand(1, 6)) {
+        int rnd = Utils.rand(0, 2 + lootingLevel);
+        for (int i = 0; i < rnd; i++) {
+            switch (Utils.rand(1, 8)) {
                 case 1:
-                    drops.add(Item.get(Item.BOTTLE, 0, Utils.rand(0, 2)));
+                    drops.add(Item.get(Item.BOTTLE, 0, Utils.rand(0, 2 + lootingLevel)));
                     break;
                 case 2:
-                    drops.add(Item.get(Item.GLOWSTONE_DUST, 0, Utils.rand(0, 2)));
+                    drops.add(Item.get(Item.GLOWSTONE_DUST, 0, Utils.rand(0, 2 + lootingLevel)));
                     break;
                 case 3:
-                    drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2)));
+                    drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2 + lootingLevel)));
                     break;
                 case 4:
-                    drops.add(Item.get(Item.REDSTONE, 0, Utils.rand(0, 2)));
+                    drops.add(Item.get(Item.REDSTONE, 0, Utils.rand(0, 2 + lootingLevel)));
                     break;
                 case 5:
-                    drops.add(Item.get(Item.SPIDER_EYE, 0, Utils.rand(0, 2)));
+                    drops.add(Item.get(Item.SPIDER_EYE, 0, Utils.rand(0, 2 + lootingLevel)));
                     break;
                 case 6:
-                    drops.add(Item.get(Item.SUGAR, 0, Utils.rand(0, 2)));
+                    drops.add(Item.get(Item.SUGAR, 0, Utils.rand(0, 2 + lootingLevel)));
                     break;
+                default:
+                    drops.add(Item.get(Item.STICK, 0, Utils.rand(0, 2 + lootingLevel)));
             }
         }
 
@@ -153,5 +157,19 @@ public class Witch extends WalkingMonster {
     @Override
     public int nearbyDistanceMultiplier() {
         return 8;
+    }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        if (followTarget == null || followTarget.isClosed()) {
+            for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(64, 64, 64), this)) {
+                if (entity instanceof SnowGolem || entity instanceof IronGolem) {
+                    setFollowTarget(entity, true);
+                    setTarget(entity);
+                    break;
+                }
+            }
+        }
+        return super.entityBaseTick(tickDiff);
     }
 }

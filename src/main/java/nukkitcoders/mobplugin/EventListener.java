@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.projectile.EntityEgg;
 import cn.nukkit.entity.projectile.EntityEnderPearl;
 import cn.nukkit.event.EventHandler;
@@ -15,11 +16,13 @@ import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDeathEvent;
 import cn.nukkit.event.entity.ProjectileHitEvent;
+import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
+import cn.nukkit.lang.TranslationContainer;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.BlockFace;
@@ -27,13 +30,15 @@ import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.EntityEventPacket;
 import cn.nukkit.network.protocol.PlayerInputPacket;
+import cn.nukkit.network.protocol.TextPacket;
 import nukkitcoders.mobplugin.entities.BaseEntity;
 import nukkitcoders.mobplugin.entities.HorseBase;
+import nukkitcoders.mobplugin.entities.Tameable;
 import nukkitcoders.mobplugin.entities.animal.walking.*;
 import nukkitcoders.mobplugin.entities.block.BlockEntitySpawner;
+import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.entities.monster.flying.Wither;
-import nukkitcoders.mobplugin.entities.monster.walking.Enderman;
-import nukkitcoders.mobplugin.entities.monster.walking.Silverfish;
+import nukkitcoders.mobplugin.entities.monster.walking.*;
 import nukkitcoders.mobplugin.event.entity.SpawnGolemEvent;
 import nukkitcoders.mobplugin.event.entity.SpawnWitherEvent;
 import nukkitcoders.mobplugin.event.spawner.SpawnerChangeTypeEvent;
@@ -47,9 +52,25 @@ public class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void EntityDeathEvent(EntityDeathEvent ev) {
-        if (!(ev.getEntity() instanceof BaseEntity)) return;
-        BaseEntity baseEntity = (BaseEntity) ev.getEntity();
+        if (ev.getEntity() instanceof EntityCreature) {
+            this.handleExperienceOrb(ev.getEntity());
+            this.handleTamedEntityDeathMessage(ev.getEntity());
+            this.handleAttackedEntityAngry(ev.getEntity());
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void PlayerDeathEvent(PlayerDeathEvent ev) {
+        this.handleAttackedEntityAngry(ev.getEntity());
+    }
+
+    private void handleExperienceOrb(Entity entity) {
+        if (!(entity instanceof BaseEntity)) return;
+
+        BaseEntity baseEntity = (BaseEntity) entity;
+
         if (!(baseEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent)) return;
+
         Entity damager = ((EntityDamageByEntityEvent) baseEntity.getLastDamageCause()).getDamager();
         if (!(damager instanceof Player)) return;
         int killExperience = baseEntity.getKillExperience();
@@ -59,6 +80,59 @@ public class EventListener implements Listener {
             } else {
                 damager.getLevel().dropExpOrb(baseEntity, killExperience);
             }
+        }
+    }
+
+    private void handleTamedEntityDeathMessage(Entity entity) {
+        if (!(entity instanceof BaseEntity)) return;
+
+        BaseEntity baseEntity = (BaseEntity) entity;
+
+        if (baseEntity instanceof Tameable) {
+            if (!((Tameable) baseEntity).hasOwner()) {
+                return;
+            }
+
+            if (((Tameable) baseEntity).getOwner() == null) {
+                return;
+            }
+
+            // TODO: More detailed death messages
+            String killedEntity;
+            if (baseEntity instanceof Wolf) {
+                killedEntity = "%entity.wolf.name";
+            } else {
+                killedEntity = baseEntity.getName();
+            }
+
+            TranslationContainer deathMessage = new TranslationContainer("death.attack.generic", killedEntity);
+            if (baseEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
+                Entity damageEntity = ((EntityDamageByEntityEvent) baseEntity.getLastDamageCause()).getDamager();
+                if (damageEntity instanceof Player) {
+                    deathMessage = new TranslationContainer("death.attack.player", killedEntity, damageEntity.getName());
+                } else {
+                    deathMessage = new TranslationContainer("death.attack.mob", killedEntity, damageEntity.getName());
+                }
+            }
+
+            TextPacket tameDeathMessage = new TextPacket();
+            tameDeathMessage.type = TextPacket.TYPE_TRANSLATION;
+            tameDeathMessage.message = deathMessage.getText();
+            tameDeathMessage.parameters = deathMessage.getParameters();
+            tameDeathMessage.isLocalized = true;
+            ((Tameable) baseEntity).getOwner().dataPacket(tameDeathMessage);
+        }
+    }
+
+    private void handleAttackedEntityAngry(Entity entity) {
+        if (!(entity.getLastDamageCause() instanceof EntityDamageByEntityEvent)) return;
+
+        Entity damager = ((EntityDamageByEntityEvent) entity.getLastDamageCause()).getDamager();
+        if (damager instanceof Wolf) {
+            ((Wolf) damager).isAngryTo = -1L;
+            ((Wolf) damager).setAngry(false);
+        } else if (damager instanceof IronGolem || damager instanceof SnowGolem) {
+            ((WalkingMonster) damager).isAngryTo = -1L;
         }
     }
 
@@ -117,6 +191,9 @@ public class EventListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void BlockPlaceEvent(BlockPlaceEvent ev) {
         Block block = ev.getBlock();
+        if (!MobPlugin.isEntityCreationAllowed(block.getLevel())) {
+            return;
+        }
         Player player = ev.getPlayer();
         Item item = ev.getItem();
         if (block.getId() == Block.JACK_O_LANTERN || block.getId() == Block.PUMPKIN) {
@@ -270,7 +347,7 @@ public class EventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void PlayerMoveEvent(PlayerMoveEvent ev) {
         Player player = ev.getPlayer();
-        if (player.getLevel().getCurrentTick() % 20 == 0) {
+        if (player.ticksLived % 20 == 0) {
             AxisAlignedBB aab = new SimpleAxisAlignedBB(
                     player.getX() - 0.6f,
                     player.getY() + 1.45f,
@@ -293,5 +370,35 @@ public class EventListener implements Listener {
             }
         }
     }
-}
 
+    @EventHandler(ignoreCancelled = true)
+    public void EntityDamageByEntityEvent(EntityDamageByEntityEvent ev) {
+        if (!MobPlugin.getInstance().config.checkTamedEntityAttack) {
+            return;
+        }
+
+        if (ev.getEntity() instanceof Player) {
+            for (Entity entity : ev.getEntity().getLevel().getNearbyEntities(ev.getEntity().getBoundingBox().grow(17, 17, 17), ev.getEntity())) {
+                if (entity instanceof Wolf) {
+                    if (((Wolf) entity).hasOwner()) {
+                        ((Wolf) entity).isAngryTo = ev.getDamager().getId();
+                        ((Wolf) entity).setAngry(true);
+                    }
+                }
+            }
+        } else if (ev.getDamager() instanceof Player) {
+            for (Entity entity : ev.getDamager().getLevel().getNearbyEntities(ev.getDamager().getBoundingBox().grow(17, 17, 17), ev.getDamager())) {
+                if (entity.getId() == ev.getEntity().getId()) return;
+
+                if (entity instanceof Wolf) {
+                    if (((Wolf) entity).hasOwner()) {
+                        if (((Wolf) entity).getOwner().equals(ev.getDamager())) {
+                            ((Wolf) entity).isAngryTo = ev.getEntity().getId();
+                            ((Wolf) entity).setAngry(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

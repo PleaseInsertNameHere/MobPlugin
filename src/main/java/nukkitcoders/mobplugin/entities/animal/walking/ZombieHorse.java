@@ -2,6 +2,7 @@ package nukkitcoders.mobplugin.entities.animal.walking;
 
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntitySmite;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -59,7 +60,11 @@ public class ZombieHorse extends WalkingAnimal implements EntitySmite {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
+            }
         }
 
         return drops.toArray(new Item[0]);

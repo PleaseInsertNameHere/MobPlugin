@@ -4,10 +4,10 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
-import nukkitcoders.mobplugin.MobPlugin;
-import nukkitcoders.mobplugin.entities.monster.walking.Stray;
 import nukkitcoders.mobplugin.AutoSpawnTask;
+import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.entities.autospawn.AbstractEntitySpawner;
+import nukkitcoders.mobplugin.entities.monster.walking.Stray;
 
 /**
  * @author PikyCZ
@@ -25,7 +25,7 @@ public class StraySpawner extends AbstractEntitySpawner {
         int biomeId = level.getBiomeId((int) pos.x, (int) pos.z);
 
         if (Block.transparent[blockId]) {
-        }else if (blockLightLevel > 7) {
+        } else if (blockLightLevel > 7) {
         } else if (pos.y > 255 || pos.y < 1 || blockId == Block.AIR) {
         } else if (biomeId != 12) {
         } else if (MobPlugin.isMobSpawningAllowedByTime(level)) {

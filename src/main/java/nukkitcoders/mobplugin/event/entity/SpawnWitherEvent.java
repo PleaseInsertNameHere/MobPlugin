@@ -8,13 +8,17 @@ import cn.nukkit.level.Position;
 
 public class SpawnWitherEvent extends Event implements Cancellable {
 
-    private Position pos;
-    private Player player;
     private static final HandlerList handlers = new HandlerList();
+    private final Position pos;
+    private final Player player;
 
     public SpawnWitherEvent(Player player, Position pos) {
         this.player = player;
         this.pos = pos;
+    }
+
+    public static HandlerList getHandlers() {
+        return handlers;
     }
 
     public Player getPlayer() {
@@ -23,9 +27,5 @@ public class SpawnWitherEvent extends Event implements Cancellable {
 
     public Position getPosition() {
         return this.pos;
-    }
-
-    public static HandlerList getHandlers() {
-        return handlers;
     }
 }

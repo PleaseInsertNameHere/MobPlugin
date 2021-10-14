@@ -5,9 +5,6 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntityExplosive;
 import cn.nukkit.entity.data.IntEntityData;
-import cn.nukkit.entity.mob.EntityCreeper;
-import cn.nukkit.entity.mob.EntitySkeleton;
-import cn.nukkit.entity.mob.EntityStray;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityExplosionPrimeEvent;
@@ -20,6 +17,8 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.particle.HugeExplodeSeedParticle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.LevelSoundEventPacket;
+import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.route.WalkerRouteFinder;
 import nukkitcoders.mobplugin.utils.Utils;
@@ -51,7 +50,7 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
 
     @Override
     public float getHeight() {
-        return 1.7f;
+        return 1.8f;
     }
 
     @Override
@@ -66,7 +65,7 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
         this.setMaxHealth(20);
 
         if (this.namedTag.contains("powered")) {
-           this.setPowered(this.namedTag.getBoolean("powered"));
+            this.setPowered(this.namedTag.getBoolean("powered"));
         }
     }
 
@@ -79,6 +78,11 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
         if (this.closed) return;
 
         EntityExplosionPrimeEvent ev = new EntityExplosionPrimeEvent(this, this.isPowered() ? 6 : 3);
+
+        if (!MobPlugin.getInstance().config.creeperExplodeBlocks) {
+            ev.setBlockBreaking(false);
+        }
+
         this.server.getPluginManager().callEvent(ev);
 
         if (!ev.isCancelled()) {
@@ -106,20 +110,21 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-
-        for (int i = 0; i < Utils.rand(0, 2); i++) {
-            drops.add(Item.get(Item.GUNPOWDER, 0, 1));
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.GUNPOWDER, 0, Utils.rand(0, 2)));
         }
 
         if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {
             Entity killer = ((EntityDamageByEntityEvent) this.lastDamageCause).getDamager();
 
-            if (killer instanceof EntitySkeleton || killer instanceof EntityStray) {
+            if (killer instanceof Skeleton || killer instanceof Stray) {
                 drops.add(Item.get(Utils.rand(500, 511), 0, 1));
             }
 
-            if (killer instanceof EntityCreeper) {
-                if (((EntityCreeper) killer).isPowered()) {
+            if (killer instanceof Creeper) {
+                if (((Creeper) killer).isPowered()) {
                     drops.add(Item.get(Item.SKULL, ItemSkull.CREEPER_HEAD, 1));
                 }
             }
@@ -141,7 +146,7 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
         if (item.getId() == Item.FLINT_AND_STEEL && !exploding) {
             this.exploding = true;
-            this.level.addSound(this, Sound.FIRE_IGNITE);
+            level.addLevelSoundEvent(this, LevelSoundEventPacket.SOUND_IGNITE);
             this.setDataFlag(DATA_FLAGS, DATA_FLAG_IGNITED, true);
             this.level.addSound(this, Sound.RANDOM_FUSE);
             level.getServer().getScheduler().scheduleDelayedTask(null, this::explode, 30);
@@ -168,10 +173,6 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     @Override
     public void onStruckByLightning(Entity entity) {
         if (this.attack(new EntityDamageByEntityEvent(entity, this, EntityDamageEvent.DamageCause.LIGHTNING, 5))) {
-            if (this.fireTicks < 160) {
-                this.setOnFire(8);
-            }
-
             this.setPowered(true);
         }
     }

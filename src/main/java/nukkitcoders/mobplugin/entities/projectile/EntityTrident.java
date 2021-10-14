@@ -4,7 +4,9 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.item.EntityEndCrystal;
-import cn.nukkit.event.entity.*;
+import cn.nukkit.event.entity.EntityDamageByChildEntityEvent;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.format.FullChunk;
@@ -22,6 +24,15 @@ public class EntityTrident extends Entity {
     public Entity shootingEntity;
     public boolean hadCollision = false;
     public boolean alreadyCollided;
+
+    public EntityTrident(FullChunk chunk, CompoundTag nbt) {
+        this(chunk, nbt, null);
+    }
+
+    public EntityTrident(FullChunk chunk, CompoundTag nbt, Entity shootingEntity) {
+        super(chunk, nbt);
+        this.shootingEntity = shootingEntity;
+    }
 
     @Override
     public int getNetworkId() {
@@ -55,15 +66,6 @@ public class EntityTrident extends Entity {
 
     protected double getDamage() {
         return namedTag.contains("damage") ? namedTag.getDouble("damage") : 8;
-    }
-
-    public EntityTrident(FullChunk chunk, CompoundTag nbt) {
-        this(chunk, nbt, null);
-    }
-
-    public EntityTrident(FullChunk chunk, CompoundTag nbt, Entity shootingEntity) {
-        super(chunk, nbt);
-        this.shootingEntity = shootingEntity;
     }
 
     public int getResultDamage() {

@@ -41,6 +41,11 @@ public class EnderDragon extends FlyingMonster implements Boss {
     }
 
     @Override
+    public float getLength() {
+        return 16f;
+    }
+
+    @Override
     public void initEntity() {
         super.initEntity();
 
@@ -53,10 +58,10 @@ public class EnderDragon extends FlyingMonster implements Boss {
 
     @Override
     public int getKillExperience() {
-        for (int i = 0; i < 167;) {
-            this.level.dropExpOrb(this, 3);
-            i++;
+        for (int i = 0; i <= 10; i++) {
+            this.level.dropExpOrb(this, 960);
         }
+        this.level.dropExpOrb(this, 2400);
         return 0;
     }
 

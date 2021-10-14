@@ -1,7 +1,6 @@
 package nukkitcoders.mobplugin.entities.monster;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.entity.data.LongEntityData;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
@@ -29,8 +28,8 @@ public abstract class TameableMonster extends WalkingMonster implements Tameable
 
         if (this.namedTag != null) {
             String ownerName = namedTag.getString(NAMED_TAG_OWNER);
-            if (ownerName != null && ownerName.length() > 0) {
-                Player player = Server.getInstance().getPlayer(ownerName);
+            if (ownerName != null && !ownerName.isEmpty()) {
+                Player player = this.getServer().getPlayerExact(ownerName);
                 if (player != null) {
                     this.setOwner(player);
                 }
@@ -47,19 +46,13 @@ public abstract class TameableMonster extends WalkingMonster implements Tameable
         if (this.owner != null) {
             namedTag.putString(NAMED_TAG_OWNER, this.owner.getName());
             namedTag.putString(NAMED_TAG_OWNER_UUID, owner.getUniqueId().toString());
-        } else {
-            namedTag.putString(NAMED_TAG_OWNER, "");
-            namedTag.putString(NAMED_TAG_OWNER_UUID, "");
         }
     }
 
     @Override
     public Player getOwner() {
+        this.checkOwner();
         return this.owner;
-    }
-
-    public boolean hasOwner() {
-        return this.owner != null;
     }
 
     public void setOwner(Player player) {
@@ -69,8 +62,27 @@ public abstract class TameableMonster extends WalkingMonster implements Tameable
     }
 
     @Override
+    public boolean hasOwner() {
+        return hasOwner(true);
+    }
+
+    public boolean hasOwner(boolean checkOnline) {
+        if (checkOnline) {
+            this.checkOwner();
+            return this.owner != null;
+        } else {
+            if (this.namedTag != null) {
+                String ownerName = namedTag.getString(NAMED_TAG_OWNER);
+                return ownerName != null && !ownerName.isEmpty();
+            }
+            return false;
+        }
+    }
+
+    @Override
     public String getName() {
-        return this.getNameTag();
+        String name = this.getNameTag();
+        return name.isEmpty() ? super.getName() : name;
     }
 
     public boolean isSitting() {
@@ -104,5 +116,20 @@ public abstract class TameableMonster extends WalkingMonster implements Tameable
         }
 
         return super.updateMove(tickDiff);
+    }
+
+    /**
+     * If the owner is online, set owner properly
+     */
+    public void checkOwner() {
+        if (this.owner == null && this.namedTag != null) {
+            String ownerName = namedTag.getString(NAMED_TAG_OWNER);
+            if (ownerName != null && !ownerName.isEmpty()) {
+                Player player = this.getServer().getPlayerExact(ownerName);
+                if (player != null) {
+                    this.setOwner(player);
+                }
+            }
+        }
     }
 }

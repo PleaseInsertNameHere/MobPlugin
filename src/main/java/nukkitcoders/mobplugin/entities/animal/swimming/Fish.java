@@ -1,8 +1,9 @@
 package nukkitcoders.mobplugin.entities.animal.swimming;
 
 import cn.nukkit.Player;
-import cn.nukkit.block.Block;
-import cn.nukkit.block.BlockWater;
+import cn.nukkit.Server;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
@@ -25,7 +26,11 @@ public abstract class Fish extends SwimmingAnimal {
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
         super.onInteract(player, item, clickedPos);
 
-        if (item.getId() == Item.BUCKET && (item.getDamage() == 0 && this.isInsideOfWater() || item.getDamage() == 8)) {
+        if (item.getId() == Item.BUCKET && (item.getDamage() == 0 || item.getDamage() == 8) && this.isInsideOfWater()) {
+            EntityDamageEvent event = new EntityDamageByEntityEvent(player, this, EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK, this.getHealth());
+            Server.getInstance().getPluginManager().callEvent(event);
+            if (event.isCancelled())
+                return false;
             this.close();
             if (item.getCount() <= 1) {
                 player.getInventory().setItemInHand(Item.get(Item.BUCKET, this.getBucketMeta(), 1));
@@ -46,7 +51,7 @@ public abstract class Fish extends SwimmingAnimal {
                 return true;
             }
         }
-        return false;
+        return super.onInteract(player, item, clickedPos);
     }
 
     abstract int getBucketMeta();

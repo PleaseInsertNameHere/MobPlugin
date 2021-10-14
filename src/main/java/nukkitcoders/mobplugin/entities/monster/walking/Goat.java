@@ -1,25 +1,24 @@
 package nukkitcoders.mobplugin.entities.monster.walking;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
-import cn.nukkit.entity.data.ByteEntityData;
+import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
-import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.particle.HeartParticle;
 import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
-import nukkitcoders.mobplugin.entities.animal.JumpingAnimal;
-import nukkitcoders.mobplugin.entities.animal.WalkingAnimal;
-import nukkitcoders.mobplugin.entities.monster.Monster;
+import nukkitcoders.mobplugin.entities.animal.FlyingAnimal;
+import nukkitcoders.mobplugin.entities.monster.FlyingMonster;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +26,8 @@ import java.util.List;
 public class Goat extends WalkingMonster {
 
     public static final int NETWORK_ID = 128;
+    protected int inLoveTicks = 0;
+    private int goatAttackDelay;
 
     public Goat(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -57,23 +58,23 @@ public class Goat extends WalkingMonster {
     public void initEntity() {
         super.initEntity();
         this.setMaxHealth(10);
-        this.setDamage(new float[]{0.5F, 1, 2, 3});
+        if (!this.isBaby()) {
+            this.setDamage(new float[]{0, 1, 2, 3});
+        } else {
+            this.setDamage(new float[]{0, 1, 1, 1});
+        }
+        goatAttackDelay = Utils.rand(20 * 30, 20 * 300);
     }
 
     @Override
     public boolean targetOption(EntityCreature creature, double distance) {
-        if(this instanceof Goat && this.attackDelay > 360) {
-            if (creature instanceof Player) {
-                Player player = (Player) creature;
-                return !player.closed && player.spawned && player.isAlive() && (player.isSurvival() || player.isAdventure()) && distance <= 100;
-            }
-            return creature.isAlive() && !creature.closed && distance <= 100;
-        } if (creature instanceof Player) {
+
+        if (creature instanceof Player) {
             Player player = (Player) creature;
             int id = player.getInventory().getItemInHand().getId();
             return player.spawned && player.isAlive() && !player.closed && (id == Item.WHEAT) && distance <= 49;
         }
-        return false;
+        return creature.isAlive() && !creature.closed && distance <= 144;
     }
 
     @Override
@@ -81,11 +82,8 @@ public class Goat extends WalkingMonster {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            for (int i = 0; i < Utils.rand(1, 2); i++) {
-                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, 1));
-            }
+            // Todo: nothing yet
         }
-
         return drops.toArray(new Item[0]);
     }
 
@@ -119,7 +117,7 @@ public class Goat extends WalkingMonster {
             player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
             this.level.addSound(this, Sound.RANDOM_EAT);
             this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), Item.get(Item.WHEAT)));
-            this.setDataFlag(DATA_FLAGS, DATA_FLAG_INLOVE);
+            setInLove();
             return true;
         }
         return super.onInteract(player, item, clickedPos);
@@ -127,13 +125,14 @@ public class Goat extends WalkingMonster {
 
     @Override
     public void attackEntity(Entity player) {
-        if (this.attackDelay > 360 && player.distanceSquared(this) <= 3.5) {
-            this.attackDelay = 0;
+        if (this.goatAttackDelay <= 0 && player.distanceSquared(this) <= 3.5) {
+            this.goatAttackDelay = Utils.rand(20 * 30, 20 * 300);
+            this.setFollowTarget(null);
+            this.setTarget(null);
 
             HashMap<EntityDamageEvent.DamageModifier, Float> damage = new HashMap<>();
             damage.put(EntityDamageEvent.DamageModifier.BASE, this.getDamage());
 
-            this.setRamming(1);
             player.attack(new EntityDamageByEntityEvent(this, player, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage));
         }
     }
@@ -146,5 +145,75 @@ public class Goat extends WalkingMonster {
             this.move(this.x, this.y + 10, this.y);
             this.updateMovement();
         }
+    }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        boolean hasUpdate = super.entityBaseTick(tickDiff);
+
+        if (goatAttackDelay > 0) {
+            goatAttackDelay--;
+        }
+        if (goatAttackDelay <= 0) {
+            if (followTarget == null || followTarget.isClosed()) {
+                for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(16, 16, 16), this)) {
+                    if (entity instanceof Player && (((Player) entity).isSurvival() || ((Player) entity).isAdventure())) {
+                        setFollowTarget(entity);
+                        setTarget(entity);
+                        break;
+                    } else if (entity instanceof EntityLiving && !(entity instanceof Player) && !(entity instanceof FlyingMonster) && !(entity instanceof FlyingAnimal) && !(entity instanceof Goat) && !(entity instanceof Shulker)) {
+                        setFollowTarget(entity);
+                        setTarget(entity);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (this.isInLove()) {
+            this.inLoveTicks -= tickDiff;
+            if (this.age % 20 == 0) {
+                for (int i = 0; i < 3; i++) {
+                    this.level.addParticle(new HeartParticle(this.add(Utils.rand(-1.0, 1.0), this.getMountedYOffset() + Utils.rand(-1.0, 1.0), Utils.rand(-1.0, 1.0))));
+                }
+                for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(10, 5, 10), this)) {
+                    if (!entity.isClosed() && this.getClass().isInstance(entity)) {
+                        Goat goat = (Goat) entity;
+                        if (goat.isInLove()) {
+                            this.inLoveTicks = 0;
+                            goat.inLoveTicks = 0;
+                            this.spawnBaby();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return hasUpdate;
+    }
+
+    protected void spawnBaby() {
+        try {
+            Goat goat = this.getClass().getConstructor(FullChunk.class, CompoundTag.class).newInstance(this.getChunk(), Entity.getDefaultNBT(this));
+            goat.setBaby(true);
+            goat.spawnToAll();
+            this.getLevel().dropExpOrb(this, Utils.rand(1, 7));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setInLove() {
+        this.inLoveTicks = 600;
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_INLOVE);
+    }
+
+    public boolean isInLove() {
+        return inLoveTicks > 0;
+    }
+
+    public void setRamming(boolean b) {
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_RAM_ATTACK, b);
     }
 }

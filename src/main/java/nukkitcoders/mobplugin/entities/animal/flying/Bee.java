@@ -81,7 +81,7 @@ public class Bee extends FlyingMonster {
         if (this.attackDelay > 23 && this.distanceSquared(player) < 1.3) {
             this.attackDelay = 0;
             HashMap<EntityDamageEvent.DamageModifier, Float> damage = new HashMap<>();
-            damage.put(EntityDamageEvent.DamageModifier.BASE, (float) this.getDamage());
+            damage.put(EntityDamageEvent.DamageModifier.BASE, this.getDamage());
             if (player instanceof Player) {
                 HashMap<Integer, Float> armorValues = new ArmorPoints();
                 float points = 0;
@@ -109,14 +109,33 @@ public class Bee extends FlyingMonster {
 
     @Override
     public boolean targetOption(EntityCreature creature, double distance) {
+        if (creature instanceof Player) {
+            Player player = (Player) creature;
+            Item item = player.getInventory().getItemInHand();
+            if ((item.getId() == Item.DANDELION || item.getId() == Item.RED_FLOWER || item.getId() == MinecraftItemID.WITHER_ROSE.get(1).getId() || item.getId() == Item.DOUBLE_PLANT) && !this.isAngry()) {
+                if (followTarget == null || followTarget.isClosed()) {
+                    setFollowTarget(creature);
+                    setTarget(creature, false);
+                    return false;
+                }
+                return false;
+            } else {
+                if (followTarget != null && !this.isAngry()) {
+                    followTarget = null;
+                    return false;
+                }
+            }
+        }
         return this.isAngry() && super.targetOption(creature, distance);
     }
 
     @Override
     public boolean attack(EntityDamageEvent ev) {
         if (super.attack(ev)) {
-            if (ev instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) ev).getDamager() instanceof Player) {
+            if (ev instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) ev).getDamager() instanceof Player && !ev.isCancelled() && server.getDifficulty() != 0) {
                 this.setAngry(true);
+                followTarget = null;
+
             }
             return true;
         }
@@ -187,13 +206,7 @@ public class Bee extends FlyingMonster {
         Bee bee = null;
         try {
             bee = this.getClass().getConstructor(FullChunk.class, CompoundTag.class).newInstance(this.getChunk(), Entity.getDefaultNBT(this));
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
         bee.setBaby(true);

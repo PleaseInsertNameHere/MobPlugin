@@ -6,6 +6,7 @@ import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntityRideable;
 import cn.nukkit.entity.data.FloatEntityData;
 import cn.nukkit.entity.data.Vector3fEntityData;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.MinecraftItemID;
 import cn.nukkit.level.Sound;
@@ -72,6 +73,9 @@ public class Strider extends WalkingAnimal implements EntityRideable {
         if (entity.riding != null) {
             dismountEntity(entity);
             entity.resetFallDistance();
+            this.motionX = 0;
+            this.motionZ = 0;
+            this.stayTime = 20;
         } else {
             if (isPassenger(entity)) {
                 return false;
@@ -181,8 +185,9 @@ public class Strider extends WalkingAnimal implements EntityRideable {
         }
 
         for (Entity passenger : new ArrayList<>(this.passengers)) {
-            if (!passenger.isAlive() || this.isInsideOfWater()) {
+            if (!passenger.isAlive() || Utils.entityInsideWaterFast(this)) {
                 dismountEntity(passenger);
+                passenger.resetFallDistance();
                 continue;
             }
 
@@ -195,8 +200,10 @@ public class Strider extends WalkingAnimal implements EntityRideable {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            for (int i = 0; i < Utils.rand(2, 5); i++) {
-                drops.add(Item.get(Item.STRING, 0, 1));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.STRING, 0, Utils.rand(2, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 5)));
+            } else {
+                drops.add(Item.get(Item.STRING, 0, Utils.rand(2, 5)));
             }
 
             if (this.isSaddled()) {

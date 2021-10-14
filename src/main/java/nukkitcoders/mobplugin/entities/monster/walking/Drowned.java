@@ -8,6 +8,7 @@ import cn.nukkit.entity.EntitySmite;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.MinecraftItemID;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.NBTIO;
@@ -42,19 +43,19 @@ public class Drowned extends WalkingMonster implements EntitySmite {
 
     @Override
     public float getWidth() {
-        return 0.6f;
+        return this.isBaby() ? 0.3f : 0.6f;
     }
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return this.isBaby() ? 0.95f : 1.9f;
     }
 
     @Override
     protected void initEntity() {
         super.initEntity();
 
-        this.setDamage(new float[] { 0, 2, 3, 4 });
+        this.setDamage(new float[]{0, 2.5f, 3, 4.5f});
         this.setMaxHealth(20);
 
         if (this.namedTag.contains("Item")) {
@@ -136,16 +137,35 @@ public class Drowned extends WalkingMonster implements EntitySmite {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            for (int i = 0; i < Utils.rand(0, 2); i++) {
-                drops.add(Item.get(Item.ROTTEN_FLESH, 0, 1));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
+            }
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                if (Utils.rand(1, 100) <= 11 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 2) {
+                    drops.add(MinecraftItemID.COPPER_INGOT.get(1));
+                }
+            } else {
+                if (Utils.rand(1, 100) <= 11) {
+                    drops.add(MinecraftItemID.COPPER_INGOT.get(1));
+                }
             }
 
-            if (Utils.rand(1, 100) <= 11) {
-                drops.add(Item.get(Item.GOLD_INGOT, 0, 1));
-            }
-
-            if (tool != null && Utils.rand(1, 100) == 50) {
+            if (tool.getId() == Item.get(Item.NAUTILUS_SHELL).getId()) {
                 drops.add(tool);
+            }
+
+            if (tool.getId() == Item.get(Item.TRIDENT).getId()) {
+                if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                    if (Utils.rand(1, 100) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 4) {
+                        drops.add(tool);
+                    }
+                } else {
+                    if (Utils.rand(1, 4) == 1) {
+                        drops.add(tool);
+                    }
+                }
             }
         }
 
@@ -154,7 +174,11 @@ public class Drowned extends WalkingMonster implements EntitySmite {
 
     @Override
     public int getKillExperience() {
-        return this.isBaby() ? 0 : 5;
+        int xp = this.isBaby() ? 12 : 5;
+        if (this.tool != null) {
+            Utils.rand(1, 3);
+        }
+        return xp;
     }
 
     private void setRandomTool() {
@@ -165,7 +189,7 @@ public class Drowned extends WalkingMonster implements EntitySmite {
                 }
                 return;
             case 2:
-                if (Utils.rand(1, 100) == 50) {
+                if (Utils.rand(1, 2000) <= 17) {
                     this.tool = Item.get(Item.FISHING_ROD, Utils.rand(51, 61), 1);
                 }
                 return;

@@ -13,12 +13,14 @@ import nukkitcoders.mobplugin.entities.animal.swimming.Squid;
 import nukkitcoders.mobplugin.entities.monster.SwimmingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Guardian extends SwimmingMonster {
 
     public static final int NETWORK_ID = 49;
-    private int laserChargeTick = 40;
+    private int laserChargeTick /*= 40*/;
     private long laserTargetEid = -1;
 
     public Guardian(FullChunk chunk, CompoundTag nbt) {
@@ -113,11 +115,11 @@ public class Guardian extends SwimmingMonster {
 
         boolean hasUpdate = super.entityBaseTick(tickDiff);
         if (followTarget != null) {
-            if (laserTargetEid !=followTarget.getId()) {
+            if (laserTargetEid != followTarget.getId()) {
                 this.setDataProperty(new LongEntityData(Entity.DATA_TARGET_EID, laserTargetEid = followTarget.getId()));
                 laserChargeTick = 40;
             }
-            if (targetOption((EntityCreature) followTarget,this.distanceSquared(followTarget))) {
+            if (targetOption((EntityCreature) followTarget, this.distanceSquared(followTarget))) {
                 if (--laserChargeTick < 0) {
                     attackEntity(followTarget);
                     this.setDataProperty(new LongEntityData(Entity.DATA_TARGET_EID, laserTargetEid = -1));
@@ -133,7 +135,26 @@ public class Guardian extends SwimmingMonster {
 
     @Override
     public Item[] getDrops() {
-        return new Item[]{Item.get(Item.PRISMARINE_SHARD, 0, Utils.rand(0, 2))};
+        List<Item> drops = new ArrayList<>();
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.PRISMARINE_SHARD, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.PRISMARINE_SHARD, 0, Utils.rand(0, 2)));
+        }
+
+        int random = Utils.rand(1, 5);
+        if (random != 3) {
+            Item item = Item.get(random <= 2 ? this.isOnFire() ? Item.COOKED_FISH : Item.RAW_FISH : Item.PRISMARINE_CRYSTALS, 0, 1);
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                for (int i = 0; i < ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel(); i++) {
+                    if (Utils.rand(1, 5) <= 2) {
+                        item.count++;
+                    }
+                }
+            }
+            drops.add(item);
+        }
+        return drops.toArray(new Item[0]);
     }
 
     @Override

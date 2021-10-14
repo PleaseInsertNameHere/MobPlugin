@@ -23,6 +23,10 @@ public class SpawnerChangeTypeEvent extends BlockEvent implements Cancellable {
         this.newEntityType = newEntityType;
     }
 
+    public static HandlerList getHandlers() {
+        return SpawnerChangeTypeEvent.handlers;
+    }
+
     public Player getPlayer() {
         return this.player;
     }
@@ -37,9 +41,5 @@ public class SpawnerChangeTypeEvent extends BlockEvent implements Cancellable {
 
     public int getOldEntityType() {
         return this.oldEntityType;
-    }
-
-    public static HandlerList getHandlers() {
-        return SpawnerChangeTypeEvent.handlers;
     }
 }

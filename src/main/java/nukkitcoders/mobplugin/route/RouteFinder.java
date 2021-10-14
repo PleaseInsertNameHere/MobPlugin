@@ -13,27 +13,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public abstract class RouteFinder {
 
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    public WalkingEntity entity;
     protected ArrayList<Node> nodes = new ArrayList<>();
     protected boolean finished = false;
     protected boolean searching = false;
-
     protected int current = 0;
-
-    public WalkingEntity entity;
-
     protected Vector3 start;
     protected Vector3 destination;
-
     protected Level level;
-
     protected boolean interrupt = false;
-
-    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-
     protected boolean reachable = true;
 
     RouteFinder(WalkingEntity entity) {
-        Objects.requireNonNull(entity,"RouteFinder: entity can not be null");
+        Objects.requireNonNull(entity, "RouteFinder: entity can not be null");
         this.entity = entity;
         this.level = entity.getLevel();
     }
@@ -107,6 +100,7 @@ public abstract class RouteFinder {
         }
 
     }
+
     public boolean hasCurrentNode() {
         return current < this.nodes.size();
     }
@@ -127,7 +121,7 @@ public abstract class RouteFinder {
     public boolean hasArrivedNode(Vector3 vec) {
         try {
             lock.readLock().lock();
-            if (this.hasNext() &&  this.getCurrentNode().getVector3()!=null) {
+            if (this.hasNext() && this.getCurrentNode().getVector3() != null) {
                 Vector3 cur = this.getCurrentNode().getVector3();
                 return vec.getX() == cur.getX() && vec.getZ() == cur.getZ();
             }
@@ -161,7 +155,8 @@ public abstract class RouteFinder {
             if (this.current + 1 < nodes.size()) {
                 return this.nodes.get(this.current + 1) != null;
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
         return false;
     }
 

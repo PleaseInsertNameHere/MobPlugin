@@ -8,6 +8,7 @@ import cn.nukkit.entity.data.FloatEntityData;
 import cn.nukkit.entity.data.Vector3fEntityData;
 import cn.nukkit.entity.mob.EntityZombiePigman;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
@@ -107,8 +108,10 @@ public class Pig extends WalkingAnimal implements EntityRideable {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            for (int i = 0; i < Utils.rand(1, 3); i++) {
-                drops.add(Item.get(this.isOnFire() ? Item.COOKED_PORKCHOP : Item.RAW_PORKCHOP, 0, 1));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_PORKCHOP : Item.RAW_PORKCHOP, 0, Utils.rand(1, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 3)));
+            } else {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_PORKCHOP : Item.RAW_PORKCHOP, 0, Utils.rand(1, 3)));
             }
             if (this.isSaddled()) {
                 drops.add(Item.get(Item.SADDLE));
@@ -256,6 +259,7 @@ public class Pig extends WalkingAnimal implements EntityRideable {
         for (Entity passenger : new ArrayList<>(this.passengers)) {
             if (!passenger.isAlive() || Utils.entityInsideWaterFast(this)) {
                 dismountEntity(passenger);
+                passenger.resetFallDistance();
                 continue;
             }
 

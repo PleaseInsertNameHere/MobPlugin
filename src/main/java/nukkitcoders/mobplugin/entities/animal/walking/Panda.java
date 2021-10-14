@@ -1,7 +1,9 @@
 package nukkitcoders.mobplugin.entities.animal.walking;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.BlockBamboo;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.MinecraftItemID;
 import cn.nukkit.level.Sound;
@@ -59,8 +61,12 @@ public class Panda extends WalkingAnimal {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-        drops.add(Item.get(MinecraftItemID.BAMBOO.get(1).getId(), 0, Utils.rand(0, 2)));
-        return drops.toArray(new Item[1]);
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(MinecraftItemID.BAMBOO.get(1).getId(), 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(MinecraftItemID.BAMBOO.get(1).getId(), 0, Utils.rand(0, 2)));
+        }
+        return drops.toArray(new Item[0]);
     }
 
     @Override
@@ -89,20 +95,19 @@ public class Panda extends WalkingAnimal {
                 this.setInLove();
                 return true;
             } else {
-                System.out.println(5446545);
+                // Todo: Fix Animation (Animation doesnt stop, Panda don't sit down)
                 AnimateEntityPacket packet = new AnimateEntityPacket();
                 packet.setAnimation("animation.panda.sitting");
-                packet.setStopExpression("");
+                packet.setNextState("default");
+                packet.setBlendOutTime(5f);
+                packet.setStopExpression("query.any_animation_finished");
+                packet.setController("__runtime_controller");
                 List<Long> entityruntimeids = new ArrayList<>();
                 entityruntimeids.add(this.getId());
                 packet.setEntityRuntimeIds(entityruntimeids);
-                packet.setBlendOutTime(5f);
-                packet.setStopExpression("default");
-                packet.setNextState("default");
-                packet.setController("");
-                player.dataPacket(packet);
-                this.setDataFlag(DATA_FLAGS, DATA_FLAG_SITTING, true);
-                // Todo: Animation
+                for (Player all : Server.getInstance().getOnlinePlayers().values())
+                    all.dataPacket(packet);
+                // this.setDataFlag(DATA_FLAGS, DATA_FLAG_SITTING, true); // doesnt work for pandas
             }
 
 

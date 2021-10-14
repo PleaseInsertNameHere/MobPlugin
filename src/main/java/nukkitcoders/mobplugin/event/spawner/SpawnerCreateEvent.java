@@ -18,15 +18,15 @@ public class SpawnerCreateEvent extends BlockEvent implements Cancellable {
         this.entityType = entityType;
     }
 
+    public static HandlerList getHandlers() {
+        return SpawnerCreateEvent.handlers;
+    }
+
     public Player getPlayer() {
         return this.player;
     }
 
     public int getEntityType() {
         return this.entityType;
-    }
-
-    public static HandlerList getHandlers() {
-        return SpawnerCreateEvent.handlers;
     }
 }

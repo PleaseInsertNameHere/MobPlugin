@@ -2,9 +2,11 @@ package nukkitcoders.mobplugin.entities.animal.walking;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntityRideable;
 import cn.nukkit.entity.EntitySmite;
 import cn.nukkit.entity.data.Vector3fEntityData;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
@@ -68,7 +70,11 @@ public class SkeletonHorse extends WalkingAnimal implements EntitySmite, EntityR
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.BONE, 0, Utils.rand(0, 2)));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.BONE, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(Item.BONE, 0, Utils.rand(0, 2)));
+            }
         }
 
         return drops.toArray(new Item[0]);
@@ -85,7 +91,6 @@ public class SkeletonHorse extends WalkingAnimal implements EntitySmite, EntityR
         Objects.requireNonNull(entity, "The target of the mounting entity can't be null");
 
         if (entity.riding != null) {
-            System.out.println(222);
             dismountEntity(entity);
             entity.resetFallDistance();
         } else {
@@ -185,12 +190,16 @@ public class SkeletonHorse extends WalkingAnimal implements EntitySmite, EntityR
 
         for (Entity passenger : new ArrayList<>(this.passengers)) {
             if (!passenger.isAlive() || Utils.entityInsideWaterFast(this)) {
-                System.out.println(111);
                 dismountEntity(passenger);
                 continue;
             }
 
             updatePassengerPosition(passenger);
         }
+    }
+
+    @Override
+    public boolean targetOption(EntityCreature creature, double distance) {
+        return false;
     }
 }

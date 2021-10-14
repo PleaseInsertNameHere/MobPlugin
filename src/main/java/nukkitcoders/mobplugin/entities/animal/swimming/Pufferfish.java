@@ -56,7 +56,7 @@ public class Pufferfish extends Fish {
         List<Item> drops = new ArrayList<>();
         drops.add(Item.get(Item.PUFFERFISH, 0, 1));
         if (Utils.rand(1, 4) == 1) {
-            drops.add(Item.get(Item.BONE, 0, 1));
+            drops.add(Item.get(Item.BONE, 0, Utils.rand(1, 2)));
         }
         return drops.toArray(new Item[0]);
     }
@@ -77,7 +77,7 @@ public class Pufferfish extends Fish {
             if (damager instanceof Player) {
                 if (this.puffed > 0) return true;
                 this.puffed = 200;
-                damager.addEffect(Effect.getEffect(Effect.POISON).setDuration(140));
+                damager.addEffect(Effect.getEffect(Effect.POISON).setDuration(200));
                 this.setDataProperty(new ByteEntityData(DATA_PUFFERFISH_SIZE, 2));
             }
         }

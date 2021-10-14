@@ -4,14 +4,15 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.data.ByteEntityData;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemDye;
-import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.EntityEventPacket;
+import cn.nukkit.network.protocol.LevelSoundEventPacket;
 import cn.nukkit.utils.DyeColor;
 import nukkitcoders.mobplugin.entities.animal.WalkingAnimal;
 import nukkitcoders.mobplugin.utils.Utils;
@@ -24,7 +25,7 @@ public class Sheep extends WalkingAnimal {
     public static final int NETWORK_ID = 13;
 
     public boolean sheared = false;
-    public int color = DyeColor.WHITE.getDyeData();
+    public int color;
     public int unshearTicks = -1;
 
     public Sheep(FullChunk chunk, CompoundTag nbt) {
@@ -74,6 +75,7 @@ public class Sheep extends WalkingAnimal {
 
     public void saveNBT() {
         super.saveNBT();
+
         this.namedTag.putByte("Color", this.color);
         this.namedTag.putBoolean("Sheared", this.sheared);
     }
@@ -85,13 +87,13 @@ public class Sheep extends WalkingAnimal {
             return true;
         } else if (item.getId() == Item.WHEAT && !this.isBaby()) {
             player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
-            this.level.addSound(this, Sound.RANDOM_EAT);
+            this.level.addLevelSoundEvent(this, LevelSoundEventPacket.SOUND_EAT);
             this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), Item.get(Item.WHEAT)));
             this.setInLove();
             return true;
         } else if (item.getId() == Item.SHEARS && !this.isBaby() && !isSheared()) {
             this.shear(true);
-            this.level.addSound(this, Sound.MOB_SHEEP_SHEAR);
+            this.level.addLevelSoundEvent(this, LevelSoundEventPacket.SOUND_SHEAR);
             player.getInventory().getItemInHand().setDamage(item.getDamage() + 1);
             return true;
         }
@@ -124,35 +126,35 @@ public class Sheep extends WalkingAnimal {
 
         if (!this.isBaby()) {
             if (!sheared) drops.add(Item.get(Item.WOOL, this.getColor(), 1));
-
-            for (int i = 0; i < Utils.rand(1, 2); i++) {
-                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, 1));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, Utils.rand(1, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_MUTTON : Item.RAW_MUTTON, 0, Utils.rand(1, 2)));
             }
         }
 
         return drops.toArray(new Item[0]);
     }
 
-
-    public void setColor(int color) {
-        this.color = color;
-        this.namedTag.putByte("Color",color);
-        this.setDataProperty(new ByteEntityData(DATA_COLOUR, color));
-    }
-
     public int getColor() {
         return namedTag.getByte("Color");
     }
 
-    private int randomColor() {
-        int rand = Utils.random.nextInt(0, 2500);
+    public void setColor(int woolColor) {
+        this.color = woolColor;
+        this.namedTag.putByte("Color", woolColor);
+        this.setDataProperty(new ByteEntityData(DATA_COLOUR, woolColor));
+    }
 
-        if (rand < 125 && 0 <= rand)return DyeColor.WHITE.getDyeData();
-        else if (rand < 250 && 125 <= rand)return DyeColor.GRAY.getDyeData();
-        else if (rand < 375 && 250 <= rand)return DyeColor.LIGHT_GRAY.getDyeData();
-        else if (rand < 500 && 375 <= rand)return DyeColor.GRAY.getDyeData();
-        else if (rand < 541 && 500 <= rand)return DyeColor.PINK.getDyeData();
-        else return DyeColor.BLACK.getDyeData();
+    private int randomColor() {
+        int rand = Utils.rand(1, 200);
+
+        if (rand == 1) return DyeColor.PINK.getWoolData();
+        else if (rand < 8) return DyeColor.BROWN.getWoolData();
+        else if (rand < 18) return DyeColor.GRAY.getWoolData();
+        else if (rand < 28) return DyeColor.LIGHT_GRAY.getWoolData();
+        else if (rand < 38) return DyeColor.BLACK.getWoolData();
+        else return DyeColor.WHITE.getWoolData();
     }
 
     @Override

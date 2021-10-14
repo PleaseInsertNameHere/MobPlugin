@@ -25,7 +25,7 @@ public class AxolotlSpawner extends AbstractEntitySpawner {
         if (blockId != Block.WATER && blockId != Block.STILL_WATER) {
         } else if (pos.y > 255 || pos.y < 1) {
         } else {
-            int b = level.getBlockIdAt((int) pos.x, (int) (pos.y -1), (int) pos.z);
+            int b = level.getBlockIdAt((int) pos.x, (int) (pos.y - 1), (int) pos.z);
             if (b == Block.WATER || b == Block.STILL_WATER) {
                 this.spawnTask.createEntity("Axolotl", pos.add(0, -1, 0));
             }

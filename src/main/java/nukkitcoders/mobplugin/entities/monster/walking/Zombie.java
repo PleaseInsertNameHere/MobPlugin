@@ -3,6 +3,7 @@ package nukkitcoders.mobplugin.entities.monster.walking;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityAgeable;
+import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.EntitySmite;
 import cn.nukkit.entity.mob.EntityDrowned;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
@@ -10,6 +11,7 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemShovelIron;
+import cn.nukkit.item.ItemSkull;
 import cn.nukkit.item.ItemSwordIron;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.NBTIO;
@@ -18,6 +20,7 @@ import cn.nukkit.network.protocol.EntityEventPacket;
 import cn.nukkit.network.protocol.MobArmorEquipmentPacket;
 import cn.nukkit.network.protocol.MobEquipmentPacket;
 import nukkitcoders.mobplugin.MobPlugin;
+import nukkitcoders.mobplugin.entities.animal.walking.Villager;
 import nukkitcoders.mobplugin.entities.monster.WalkingMonster;
 import nukkitcoders.mobplugin.route.WalkerRouteFinder;
 import nukkitcoders.mobplugin.utils.Utils;
@@ -44,12 +47,12 @@ public class Zombie extends WalkingMonster implements EntityAgeable, EntitySmite
 
     @Override
     public float getWidth() {
-        return 0.6f;
+        return this.isBaby() ? 0.3f : 0.6f;
     }
 
     @Override
     public float getHeight() {
-        return 1.95f;
+        return this.isBaby() ? 0.95f : 1.9f;
     }
 
     @Override
@@ -61,7 +64,7 @@ public class Zombie extends WalkingMonster implements EntityAgeable, EntitySmite
     protected void initEntity() {
         super.initEntity();
 
-        this.setDamage(new float[] { 0, 2, 3, 4 });
+        this.setDamage(new float[]{0, 2.5f, 3, 4.5f});
         this.setMaxHealth(20);
 
         this.armor = getRandomArmor();
@@ -100,7 +103,7 @@ public class Zombie extends WalkingMonster implements EntityAgeable, EntitySmite
             EntityEventPacket pk = new EntityEventPacket();
             pk.eid = this.getId();
             pk.event = 4;
-            this.level.addChunkPacket(this.getChunkX() >> 4,this.getChunkZ() >> 4, pk);
+            this.level.addChunkPacket(this.getChunkX() >> 4, this.getChunkZ() >> 4, pk);
         }
     }
 
@@ -127,17 +130,27 @@ public class Zombie extends WalkingMonster implements EntityAgeable, EntitySmite
             }
         }
 
+        if (target == null || !(target instanceof EntityLiving)) {
+            for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(32, 32, 32), this)) {
+                if (entity instanceof Villager) {
+                    setTarget(entity);
+                    break;
+                }
+            }
+        }
+
         return hasUpdate;
     }
 
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+            drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+        } else {
+            drops.add(Item.get(Item.ROTTEN_FLESH, 0, Utils.rand(0, 2)));
+        }
         if (!this.isBaby()) {
-            for (int i = 0; i < Utils.rand(0, 2); i++) {
-                drops.add(Item.get(Item.ROTTEN_FLESH, 0, 1));
-            }
 
             if (this.tool != null) {
                 if (tool instanceof ItemSwordIron && Utils.rand(1, 3) == 1) {
@@ -149,17 +162,23 @@ public class Zombie extends WalkingMonster implements EntityAgeable, EntitySmite
                 }
             }
 
-            if (Utils.rand(1, 3) == 1) {
-                switch (Utils.rand(1, 3)) {
-                    case 1:
-                        drops.add(Item.get(Item.IRON_INGOT, 0, Utils.rand(0, 1)));
-                        break;
-                    case 2:
-                        drops.add(Item.get(Item.CARROT, 0, Utils.rand(0, 1)));
-                        break;
-                    case 3:
-                        drops.add(Item.get(Item.POTATO, 0, Utils.rand(0, 1)));
-                        break;
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                if (Utils.rand(1, 1000) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 10) {
+                    Item[] droppingItem = new Item[]{Item.get(Item.IRON_INGOT), Item.get(Item.CARROT), Item.get(Item.POTATO)};
+                    drops.add(droppingItem[Utils.rand(0, droppingItem.length - 1)]);
+                }
+            } else {
+                if (Utils.rand(1, 40) == 1) {
+                    Item[] droppingItem = new Item[]{Item.get(Item.IRON_INGOT), Item.get(Item.CARROT), Item.get(Item.POTATO)};
+                    drops.add(droppingItem[Utils.rand(0, droppingItem.length - 1)]);
+                }
+            }
+        }
+        if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {
+            Entity killer = ((EntityDamageByEntityEvent) this.lastDamageCause).getDamager();
+            if (killer instanceof Creeper) {
+                if (((Creeper) killer).isPowered()) {
+                    drops.add(Item.get(Item.SKULL, ItemSkull.ZOMBIE_HEAD, 1));
                 }
             }
         }

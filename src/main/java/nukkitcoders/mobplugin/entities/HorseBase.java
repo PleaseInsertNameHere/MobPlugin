@@ -5,6 +5,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntityRideable;
 import cn.nukkit.entity.data.Vector3fEntityData;
+import cn.nukkit.entity.passive.EntitySkeletonHorse;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.particle.ItemBreakParticle;
@@ -65,6 +66,9 @@ public class HorseBase extends WalkingAnimal implements EntityRideable {
         if (entity.riding != null) {
             dismountEntity(entity);
             entity.resetFallDistance();
+            this.motionX = 0;
+            this.motionZ = 0;
+            this.stayTime = 20;
         } else {
             if (isPassenger(entity)) {
                 return false;
@@ -82,23 +86,12 @@ public class HorseBase extends WalkingAnimal implements EntityRideable {
     }
 
     @Override
-    public boolean dismountEntity(Entity entity) {
-        broadcastLinkPacket(entity, SetEntityLinkPacket.TYPE_REMOVE);
-        entity.riding = null;
-        entity.setDataFlag(DATA_FLAGS, DATA_FLAG_RIDING, false);
-        passengers.remove(entity);
-        entity.setSeatPosition(new Vector3f());
-        updatePassengerPosition(entity);
-        return true;
-    }
-
-    @Override
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
         if (this.isFeedItem(item) && !this.isBaby()) {
             this.level.addParticle(new ItemBreakParticle(this.add(0, this.getMountedYOffset(), 0), Item.get(item.getId(), 0, 1)));
             this.setInLove();
             return true;
-        } else if (this.canBeSaddled() && !this.isSaddled() && item.equals(Item.get(Item.SADDLE))) {
+        } else if (this.canBeSaddled() && !this.isSaddled() && item.getId() == Item.SADDLE) {
             player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
             this.level.addLevelSoundEvent(this, LevelSoundEventPacket.SOUND_SADDLE);
             this.setSaddled(true);
@@ -179,8 +172,9 @@ public class HorseBase extends WalkingAnimal implements EntityRideable {
         }
 
         for (Entity passenger : new ArrayList<>(this.passengers)) {
-            if (!passenger.isAlive() || Utils.entityInsideWaterFast(this)) {
+            if (!passenger.isAlive() || (this.getNetworkId() != EntitySkeletonHorse.NETWORK_ID && Utils.entityInsideWaterFast(this))) {
                 dismountEntity(passenger);
+                passenger.resetFallDistance();
                 continue;
             }
 
@@ -216,5 +210,12 @@ public class HorseBase extends WalkingAnimal implements EntityRideable {
                 item.getId() == Item.SUGAR ||
                 item.getId() == Item.BREAD ||
                 item.getId() == Item.GOLDEN_CARROT;
+    }
+
+    @Override
+    protected void checkTarget() {
+        if (this.passengers.isEmpty()) {
+            super.checkTarget();
+        }
     }
 }

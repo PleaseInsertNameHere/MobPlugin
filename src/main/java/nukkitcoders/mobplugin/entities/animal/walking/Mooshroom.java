@@ -4,10 +4,12 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.data.IntEntityData;
+import cn.nukkit.entity.passive.EntityMooshroom;
+import cn.nukkit.event.entity.CreatureSpawnEvent;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
-import cn.nukkit.level.particle.ExplodeParticle;
 import cn.nukkit.level.particle.HugeExplodeParticle;
 import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.math.Vector3;
@@ -71,8 +73,16 @@ public class Mooshroom extends WalkingAnimal {
         List<Item> drops = new ArrayList<>();
 
         if (!this.isBaby()) {
-            drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 2)));
-            drops.add(Item.get(this.isOnFire() ? Item.COOKED_BEEF : Item.RAW_BEEF, 0, Utils.rand(1, 3)));
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
+            } else {
+                drops.add(Item.get(Item.LEATHER, 0, Utils.rand(0, 2)));
+            }
+            if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_BEEF : Item.RAW_BEEF, 0, Utils.rand(1, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 3)));
+            } else {
+                drops.add(Item.get(this.isOnFire() ? Item.COOKED_BEEF : Item.RAW_BEEF, 0, Utils.rand(1, 3)));
+            }
         }
 
         return drops.toArray(new Item[0]);
@@ -91,6 +101,7 @@ public class Mooshroom extends WalkingAnimal {
                 player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
                 if (player.getInventory().canAddItem(newBowl)) {
                     player.getInventory().addItem(newBowl);
+                    this.level.addSound(this, Sound.MOB_MOOSHROOM_SUSPICIOUS_MILK);
                 } else {
                     player.dropItem(newBowl);
                 }
@@ -124,14 +135,14 @@ public class Mooshroom extends WalkingAnimal {
                 this.close();
                 cow.setBaby(true);
                 cow.spawnToAll();
-                this.level.addSound(this, Sound.MOB_MOOSHROOM_CONVERT);
+                this.level.addSound(this, Sound.MOB_SHEEP_SHEAR);
                 this.level.addParticle(new HugeExplodeParticle(this.add(0, this.getMountedYOffset(), 0)));
                 this.getLevel().dropItem(this, Item.get(this.isBrown() ? Item.BROWN_MUSHROOM : Item.RED_MUSHROOM, 0, 5));
             } else {
                 Cow cow = new Cow(this.getChunk(), Entity.getDefaultNBT(this));
                 this.close();
                 cow.spawnToAll();
-                this.level.addSound(this, Sound.MOB_MOOSHROOM_CONVERT);
+                this.level.addSound(this, Sound.MOB_SHEEP_SHEAR);
                 this.level.addParticle(new HugeExplodeParticle(this.add(0, this.getMountedYOffset(), 0)));
                 this.getLevel().dropItem(this, Item.get(this.isBrown() ? Item.BROWN_MUSHROOM : Item.RED_MUSHROOM, 0, 5));
             }
@@ -147,8 +158,44 @@ public class Mooshroom extends WalkingAnimal {
 
     @Override
     public void onStruckByLightning(Entity entity) {
-        this.setBrown(!this.isBrown());
-        super.onStruckByLightning(entity);
+        Entity ent = Entity.createEntity("Mooshroom", this);
+        if (ent != null) {
+            CreatureSpawnEvent cse = new CreatureSpawnEvent(EntityMooshroom.NETWORK_ID, this, ent.namedTag, CreatureSpawnEvent.SpawnReason.LIGHTNING);
+            this.getServer().getPluginManager().callEvent(cse);
+
+            if (cse.isCancelled()) {
+                ent.close();
+                return;
+            }
+
+            ent.yaw = this.yaw;
+            ent.pitch = this.pitch;
+            ent.setImmobile(this.isImmobile());
+            if (this.hasCustomName()) {
+                ent.setNameTag(this.getNameTag());
+                ent.setNameTagVisible(this.isNameTagVisible());
+                ent.setNameTagAlwaysVisible(this.isNameTagAlwaysVisible());
+
+            }
+            if (!this.isClosed()) {
+                if (this.isBrown()) {
+                    this.close();
+                    entity.close();
+                    level.addSound(this, Sound.MOB_MOOSHROOM_CONVERT);
+                    ((Mooshroom) ent).setBrown(false);
+                    ent.spawnToAll();
+                } else {
+                    this.close();
+                    entity.close();
+                    level.addSound(this, Sound.MOB_MOOSHROOM_CONVERT);
+                    ((Mooshroom) ent).setBrown(true);
+                    ent.spawnToAll();
+                }
+            }
+        } else {
+            super.onStruckByLightning(entity);
+        }
+
     }
 
     public boolean isBrown() {

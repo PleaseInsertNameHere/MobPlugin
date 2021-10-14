@@ -7,7 +7,7 @@ import nukkitcoders.mobplugin.route.RouteFinder;
  */
 public class RouteFinderSearchTask implements Runnable {
 
-    private RouteFinder route;
+    private final RouteFinder route;
     private int retryTime = 0;
 
     public RouteFinderSearchTask(RouteFinder route) {
@@ -25,7 +25,8 @@ public class RouteFinderSearchTask implements Runnable {
                 retryTime += 10;
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException ignore) {}
+                } catch (InterruptedException ignore) {
+                }
             }
         }
         route.interrupt();
