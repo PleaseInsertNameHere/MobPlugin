@@ -7,9 +7,12 @@ import cn.nukkit.entity.data.ByteEntityData;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.AnimateEntityPacket;
 import nukkitcoders.mobplugin.entities.WalkingEntity;
 import nukkitcoders.mobplugin.entities.monster.walking.Goat;
 import nukkitcoders.mobplugin.utils.Utils;
+
+import java.util.Arrays;
 
 public abstract class WalkingMonster extends WalkingEntity implements Monster {
 
@@ -138,6 +141,16 @@ public abstract class WalkingMonster extends WalkingEntity implements Monster {
 
     public void setRamming(int b) {
         this.setDataProperty(new ByteEntityData(DATA_FLAG_RAM_ATTACK, b));
+
+        AnimateEntityPacket animateEntityPacket = new AnimateEntityPacket();
+        animateEntityPacket.setAnimation("animation.goat.ram_attack");
+        animateEntityPacket.setNextState("default");
+        animateEntityPacket.setBlendOutTime(10);
+        animateEntityPacket.setEntityRuntimeIds(Arrays.asList(this.getId()));
+        animateEntityPacket.setController("");
+        animateEntityPacket.setStopExpression("");
+
+        Server.broadcastPacket(Server.getInstance().getOnlinePlayers().values(), animateEntityPacket);
     }
 
     @Override
