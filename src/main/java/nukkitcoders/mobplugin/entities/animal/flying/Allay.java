@@ -28,7 +28,7 @@ public class Allay extends FlyingAnimal {
         if(creature instanceof Player) {
             Player player = (Player) creature;
 
-            return player.isAlive() && !player.closed && distance > 30 && player.isSurvival() || player.isCreative();
+            return player.isAlive() && !player.closed && distance > 30 && player.isSurvival();
         }
         return false;
     }
