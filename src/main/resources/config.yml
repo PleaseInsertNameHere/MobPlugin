@@ -61,13 +61,17 @@ spawners:
   enabled: true
   # Mob spawner spawning range
   spawn-range: 4
-  # Minimum amount of mobs spawned from spawner
+  # Minimum amount of mobs spawned at a time
   minimum-spawn-count: 1
-  # Maximum amount of mobs spawned from spawner
+  # Maximum amount of mobs spawned at a time
   maximum-spawn-count: 4
+  # Minimum spawn delay (ticks)
   minimum-delay: 200
+  # Maximum spawn delay (ticks)
   maximum-delay: 5000
+  # Maximum amount of mobs near the spawner
   maximum-nearby-entities: 16
+  # Player must be this close to spawner for it to spawn mobs
   required-player-range: 16
   # Don't reduce spawn eggs if there is an entity already in the spawner (non-vanilla behavior)
   do-not-waste-spawn-eggs: false
@@ -79,6 +83,7 @@ other:
   # Set -1 to disable
   spawn-no-spawning-area: -1
   # Kill entities instead of despawning them
+  # This can have a negative impact on performance due to the drops
   kill-mobs-on-despawn: false
   # Custom enderman max spawns rule for the_end world
   end-enderman-spawning: 10
