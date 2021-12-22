@@ -1,11 +1,13 @@
 package nukkitcoders.mobplugin.entities.monster.walking;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.entity.projectile.EntitySnowball;
+import cn.nukkit.event.block.BlockFormEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityShootBowEvent;
@@ -178,6 +180,13 @@ public class SnowGolem extends WalkingMonster {
         if (this.age % 20 == 0 && (this.level.getDimension() == Level.DIMENSION_NETHER || (this.level.isRaining() && this.level.canBlockSeeSky(this)))) {
             this.attack(new EntityDamageEvent(this, EntityDamageEvent.DamageCause.FIRE_TICK, 1));
         }
+        BlockFormEvent event = new BlockFormEvent(level.getBlock(new Vector3(this.x, this.y, this.z)), Block.get(Block.SNOW_LAYER));
+        Server.getInstance().getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) {
+            return false;
+        }
+
         if (this.level.getBlock(this).getId() == Item.AIR && (this.getLevelBlock().down().isSolid() && this.getLevelBlock().down().getId() != Block.HOPPER_BLOCK)) {
             this.level.setBlock(this, Block.get(Block.SNOW_LAYER));
         }
