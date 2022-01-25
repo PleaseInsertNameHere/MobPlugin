@@ -80,6 +80,9 @@ public class Goat extends WalkingMonster {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
 
         if (!this.isBaby()) {
             // Todo: nothing yet

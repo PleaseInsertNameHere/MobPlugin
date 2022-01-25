@@ -131,6 +131,9 @@ public class SnowGolem extends WalkingMonster {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
 
         drops.add(Item.get(Item.SNOWBALL, 0, Utils.rand(0, 15)));
 

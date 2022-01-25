@@ -105,6 +105,10 @@ public class Ravager extends WalkingMonster {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
+
         drops.add(Item.get(Item.SADDLE));
 
         return drops.toArray(new Item[0]);

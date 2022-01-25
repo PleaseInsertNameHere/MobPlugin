@@ -63,6 +63,6 @@ public class Ocelot extends WalkingAnimal {
 
     @Override
     public Item[] getDrops() {
-        return new Item[]{};
+        return super.getDrops();
     }
 }

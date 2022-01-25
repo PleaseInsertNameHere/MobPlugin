@@ -45,6 +45,10 @@ public class TropicalFish extends Fish {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
+
         drops.add(Item.get(Item.CLOWNFISH, 0, 1));
         if (Utils.rand(1, 4) == 1) {
             drops.add(Item.get(Item.BONE, 0, Utils.rand(1, 2)));

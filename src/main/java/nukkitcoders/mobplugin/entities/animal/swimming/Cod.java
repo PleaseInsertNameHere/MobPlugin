@@ -45,6 +45,10 @@ public class Cod extends Fish {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
+
         drops.add(Item.get(this.isOnFire() ? Item.COOKED_FISH : Item.RAW_FISH, 0, 1));
         if (Utils.rand(1, 20) == 1) {
             drops.add(Item.get(Item.BONE, 0, Utils.rand(1, 2)));

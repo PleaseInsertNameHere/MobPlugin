@@ -13,7 +13,9 @@ import nukkitcoders.mobplugin.entities.monster.walking.IronGolem;
 import nukkitcoders.mobplugin.entities.monster.walking.SnowGolem;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Slime extends JumpingMonster {
 
@@ -121,6 +123,11 @@ public class Slime extends JumpingMonster {
 
     @Override
     public Item[] getDrops() {
+        List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
+
         if (this.size == SIZE_BIG) {
             CreatureSpawnEvent ev = new CreatureSpawnEvent(NETWORK_ID, this, this.namedTag, CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
             level.getServer().getPluginManager().callEvent(ev);
@@ -140,7 +147,7 @@ public class Slime extends JumpingMonster {
             level.getServer().getPluginManager().callEvent(ev);
 
             if (ev.isCancelled()) {
-                return new Item[]{};
+                return super.getDrops();
             }
 
             for (int i = 1; i <= Utils.rand(2, 4); i++) {
@@ -148,15 +155,17 @@ public class Slime extends JumpingMonster {
                 entity.spawnToAll();
             }
 
-            return new Item[]{};
+            return super.getDrops();
         } else {
             if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
-                return new Item[]{Item.get(Item.SLIMEBALL, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2))};
+                drops.add(Item.get(Item.SLIMEBALL, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 2)));
             } else {
-                return new Item[]{Item.get(Item.SLIMEBALL, 0, Utils.rand(0, 2))};
+                drops.add(Item.get(Item.SLIMEBALL, 0, Utils.rand(0, 2)));
             }
+            return drops.toArray(new Item[0]);
         }
     }
+
 
     @Override
     public int getKillExperience() {

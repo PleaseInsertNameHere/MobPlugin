@@ -128,6 +128,9 @@ public class PolarBear extends WalkingMonster {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
 
         if (!this.isBaby()) {
             if (Utils.rand(1, 25) == 1) {
