@@ -445,6 +445,8 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                                         setTrading(false);
                                         Piglin.this.setDataFlag(DATA_FLAGS, DATA_FLAG_ADMIRING, false);
                                         setItemoffhand(Item.get(Item.AIR));
+                                        Item cloneItem = item.clone();
+                                        cloneItem.setCount(1);
                                         if (item.isHelmet() && (armor[0] == null || armor[0].getId() != Item.GOLD_HELMET)) {
                                             Item[] armorHelmet = getArmor();
                                             if (armorHelmet[0] != null) {
@@ -477,8 +479,8 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                                         } else if (item.isSword() && itemhand == null) {
                                             setItemhand(item);
                                         } else {
-                                            if (Piglin.this.inventory.canAddItem(item)) {
-                                                Piglin.this.inventory.addItem(item);
+                                            if (Piglin.this.inventory.canAddItem(cloneItem)) {
+                                                Piglin.this.inventory.addItem(cloneItem);
                                             }
                                         }
                                     }
