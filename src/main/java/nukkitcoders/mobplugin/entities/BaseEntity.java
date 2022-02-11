@@ -603,7 +603,7 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
         return entity instanceof Player;
     }
 
-    @Override
+    /*@Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
         if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getDamager() instanceof EntityWitherSkull) {
@@ -614,7 +614,7 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
             }
         }
         return drops.toArray(new Item[0]);
-    }
+    }*/
 
     protected boolean applyNameTag(Player player, Item item) {
         return !(this instanceof EnderDragon) && super.applyNameTag(player, item);
