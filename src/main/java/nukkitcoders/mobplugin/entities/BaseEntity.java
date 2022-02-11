@@ -320,19 +320,6 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
         return true;
     }
 
-    @Override
-    public boolean onInteract(Player player, Item item) {
-        if (item.getId() == Item.NAME_TAG) {
-            if (item.hasCustomName() && !(this instanceof EnderDragon)) {
-                this.setNameTag(item.getCustomName());
-                this.setNameTagVisible(true);
-                player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
-                return true;
-            }
-        }
-        return false;
-    }
-
     protected float getMountedYOffset() {
         return getHeight() * 0.75F;
     }
@@ -627,5 +614,9 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
             }
         }
         return drops.toArray(new Item[0]);
+    }
+
+    protected boolean applyNameTag(Player player, Item item) {
+        return !(this instanceof EnderDragon) && super.applyNameTag(player, item);
     }
 }
