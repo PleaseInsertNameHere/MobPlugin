@@ -135,6 +135,9 @@ public class Drowned extends WalkingMonster implements EntitySmite {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
 
         if (!this.isBaby()) {
             if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
@@ -151,19 +154,20 @@ public class Drowned extends WalkingMonster implements EntitySmite {
                     drops.add(MinecraftItemID.COPPER_INGOT.get(1));
                 }
             }
+            /*if (tool != null && tool.getId() != 0) {
+                if (tool.getId() == Item.get(Item.NAUTILUS_SHELL).getId()) {
+                    drops.add(tool);
+                }
 
-            /*if (tool.getId() == Item.NAUTILUS_SHELL) {
-                drops.add(tool);
-            }
-
-            if (tool.getId() == Item.TRIDENT) {
-                if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
-                    if (Utils.rand(1, 100) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 4) {
-                        drops.add(tool);
-                    }
-                } else {
-                    if (Utils.rand(1, 4) == 1) {
-                        drops.add(tool);
+                if (tool.getId() == Item.get(Item.TRIDENT).getId()) {
+                    if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
+                        if (Utils.rand(1, 100) <= 25 + ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() * 4) {
+                            drops.add(tool);
+                        }
+                    } else {
+                        if (Utils.rand(1, 4) == 1) {
+                            drops.add(tool);
+                        }
                     }
                 }
             }*/

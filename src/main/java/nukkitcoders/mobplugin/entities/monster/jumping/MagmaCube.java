@@ -11,7 +11,9 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.monster.JumpingMonster;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MagmaCube extends JumpingMonster {
 
@@ -123,15 +125,19 @@ public class MagmaCube extends JumpingMonster {
 
     @Override
     public Item[] getDrops() {
+        List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
         if (this.size == SIZE_BIG) {
             CreatureSpawnEvent ev = new CreatureSpawnEvent(NETWORK_ID, this, this.namedTag, CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
             level.getServer().getPluginManager().callEvent(ev);
 
             if (ev.isCancelled()) {
                 if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
-                    return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1))};
+                    drops.add(Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
                 } else {
-                    return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+                    drops.add(Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1)));
                 }
             }
 
@@ -141,9 +147,9 @@ public class MagmaCube extends JumpingMonster {
             }
 
             if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
-                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1))};
+                drops.add(Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
             } else {
-                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+                drops.add(Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1)));
             }
         } else if (this.size == SIZE_MEDIUM) {
             CreatureSpawnEvent ev = new CreatureSpawnEvent(NETWORK_ID, this, this.namedTag, CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
@@ -151,9 +157,9 @@ public class MagmaCube extends JumpingMonster {
 
             if (ev.isCancelled()) {
                 if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
-                    return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1))};
+                    drops.add(Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
                 } else {
-                    return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+                    drops.add(Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1)));
                 }
             }
 
@@ -164,13 +170,12 @@ public class MagmaCube extends JumpingMonster {
             }
 
             if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() >= 1) {
-                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1))};
+                drops.add(Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, ((EntityDamageByEntityEvent) this.getLastDamageCause()).getLootingLevel() + 1)));
             } else {
-                return new Item[]{Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1))};
+                drops.add(Item.get(Item.MAGMA_CREAM, 0, Utils.rand(0, 1)));
             }
-        } else {
-            return new Item[0];
         }
+        return drops.toArray(new Item[0]);
     }
 
     @Override

@@ -123,6 +123,9 @@ public class Sheep extends WalkingAnimal {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
 
         if (!this.isBaby()) {
             if (!sheared) drops.add(Item.get(Item.WOOL, this.getColor(), 1));

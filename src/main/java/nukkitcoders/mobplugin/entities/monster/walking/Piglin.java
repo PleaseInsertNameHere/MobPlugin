@@ -236,7 +236,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
 
     @Override
     public boolean onInteract(Player player, Item item, Vector3 clickedPos) {
-        /*if (item.getId() == Item.get(Item.GOLD_INGOT).getId() && !this.isTrading()) {
+        if (item.getId() == Item.get(Item.GOLD_INGOT).getId() && !this.isTrading()) {
             this.setDataFlag(DATA_FLAGS, DATA_FLAG_ADMIRING, true);
             setTrading(true);
             Item cloneitem = item.clone();
@@ -279,7 +279,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                 }
             }, 20 * 6);
             return true;
-        }*/
+        }
         return super.onInteract(player, item, clickedPos);
     }
 
@@ -392,7 +392,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
         }
 
 
-        /*if (!this.isTrading() && this.stayTime <= 0) {
+        if (!this.isTrading() && this.stayTime <= 0) {
             if (target == null || (target instanceof Entity && ((Entity) target).closed) || !(target instanceof Entity)) {
                 for (Entity entity : this.getLevel().getNearbyEntities(this.getBoundingBox().grow(16, 16, 16), this)) {
                     if (entity instanceof EntityItem) {
@@ -406,7 +406,6 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                             isRunning = true;
                             setTarget(entity);
                         }
-
                     }
                 }
             }
@@ -438,48 +437,47 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                         if (this.inventory.canAddItem(item)) {
                             animate(item, entity);
 
-                            Server.getInstance().getScheduler().scheduleDelayedTask(MobPlugin.getInstance(), new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (!Piglin.this.isClosed()) {
-                                        setTrading(false);
-                                        Piglin.this.setDataFlag(DATA_FLAGS, DATA_FLAG_ADMIRING, false);
-                                        setItemoffhand(Item.get(Item.AIR));
-                                        if (item.isHelmet() && (armor[0] == null || armor[0].getId() != Item.GOLD_HELMET)) {
-                                            Item[] armorHelmet = getArmor();
-                                            if (armorHelmet[0] != null) {
-                                                Piglin.this.getLevel().dropItem(Piglin.this, armorHelmet[0]);
-                                            }
-                                            armorHelmet[0] = item;
-                                            setArmor(armorHelmet);
-                                        } else if (item.isChestplate() && (armor[1] == null || armor[1].getId() != Item.GOLD_CHESTPLATE)) {
-                                            Item[] armorChestplate = getArmor();
-                                            if (armorChestplate[1] != null) {
-                                                Piglin.this.getLevel().dropItem(Piglin.this, armorChestplate[1]);
-                                            }
-                                            armorChestplate[1] = item;
-                                            setArmor(armorChestplate);
+                            Server.getInstance().getScheduler().scheduleDelayedTask(MobPlugin.getInstance(), () -> {
+                                if (!Piglin.this.isClosed()) {
+                                    setTrading(false);
+                                    Piglin.this.setDataFlag(DATA_FLAGS, DATA_FLAG_ADMIRING, false);
+                                    setItemoffhand(Item.get(Item.AIR));
+                                    Item cloneItem = item.clone();
+                                    cloneItem.setCount(1);
+                                    if (item.isHelmet() && (armor[0] == null || armor[0].getId() != Item.GOLD_HELMET)) {
+                                        Item[] armorHelmet = getArmor();
+                                        if (armorHelmet[0] != null) {
+                                            Piglin.this.getLevel().dropItem(Piglin.this, armorHelmet[0]);
+                                        }
+                                        armorHelmet[0] = item;
+                                        setArmor(armorHelmet);
+                                    } else if (item.isChestplate() && (armor[1] == null || armor[1].getId() != Item.GOLD_CHESTPLATE)) {
+                                        Item[] armorChestplate = getArmor();
+                                        if (armorChestplate[1] != null) {
+                                            Piglin.this.getLevel().dropItem(Piglin.this, armorChestplate[1]);
+                                        }
+                                        armorChestplate[1] = item;
+                                        setArmor(armorChestplate);
 
-                                        } else if (item.isLeggings() && (armor[2] == null || armor[2].getId() != Item.GOLD_LEGGINGS)) {
-                                            Item[] armorLeggings = getArmor();
-                                            if (armorLeggings[2] != null) {
-                                                Piglin.this.getLevel().dropItem(Piglin.this, armorLeggings[2]);
-                                            }
-                                            armorLeggings[2] = item;
-                                            setArmor(armorLeggings);
-                                        } else if (item.isBoots() && (armor[3] == null || armor[3].getId() != Item.GOLD_BOOTS)) {
-                                            Item[] armorBoots = getArmor();
-                                            if (armorBoots[3] != null) {
-                                                Piglin.this.getLevel().dropItem(Piglin.this, armorBoots[3]);
-                                            }
-                                            armorBoots[3] = item;
-                                            setArmor(armorBoots);
-                                        } else if (item.isSword() && itemhand == null) {
-                                            setItemhand(item);
-                                        } else {
-                                            if (Piglin.this.inventory.canAddItem(item)) {
-                                                Piglin.this.inventory.addItem(item);
-                                            }
+                                    } else if (item.isLeggings() && (armor[2] == null || armor[2].getId() != Item.GOLD_LEGGINGS)) {
+                                        Item[] armorLeggings = getArmor();
+                                        if (armorLeggings[2] != null) {
+                                            Piglin.this.getLevel().dropItem(Piglin.this, armorLeggings[2]);
+                                        }
+                                        armorLeggings[2] = item;
+                                        setArmor(armorLeggings);
+                                    } else if (item.isBoots() && (armor[3] == null || armor[3].getId() != Item.GOLD_BOOTS)) {
+                                        Item[] armorBoots = getArmor();
+                                        if (armorBoots[3] != null) {
+                                            Piglin.this.getLevel().dropItem(Piglin.this, armorBoots[3]);
+                                        }
+                                        armorBoots[3] = item;
+                                        setArmor(armorBoots);
+                                    } else if (item.isSword() && itemhand == null) {
+                                        setItemhand(item);
+                                    } else {
+                                        if (Piglin.this.inventory.canAddItem(cloneItem)) {
+                                            Piglin.this.inventory.addItem(cloneItem);
                                         }
                                     }
                                 }
@@ -528,7 +526,7 @@ public class Piglin extends WalkingMonster implements InventoryHolder {
                     }
                 }
             }
-        }*/
+        }
 
         if (isRunning) {
             this.stayTime = 0;

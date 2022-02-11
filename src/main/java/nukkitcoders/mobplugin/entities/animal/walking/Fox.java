@@ -75,6 +75,10 @@ public class Fox extends WalkingAnimal {
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
+        for (Item item : super.getDrops()) {
+            drops.add(item);
+        }
+
         if (!this.isBaby()) {
             if (Utils.rand(1, 100) == 1) {
                 drops.add(Item.get(Item.EMERALD));

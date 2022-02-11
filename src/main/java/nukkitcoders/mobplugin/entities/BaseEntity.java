@@ -2,12 +2,14 @@ package nukkitcoders.mobplugin.entities;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityAgeable;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.MinecraftItemID;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.Vector3;
@@ -17,9 +19,12 @@ import cn.nukkit.network.protocol.SetEntityMotionPacket;
 import nukkitcoders.mobplugin.MobPlugin;
 import nukkitcoders.mobplugin.entities.monster.Monster;
 import nukkitcoders.mobplugin.entities.monster.flying.EnderDragon;
+import nukkitcoders.mobplugin.entities.projectile.EntityWitherSkull;
 import nukkitcoders.mobplugin.utils.Utils;
 import org.apache.commons.math3.util.FastMath;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class BaseEntity extends EntityCreature implements EntityAgeable {
@@ -609,5 +614,18 @@ public abstract class BaseEntity extends EntityCreature implements EntityAgeable
 
     public boolean canTarget(Entity entity) {
         return entity instanceof Player;
+    }
+
+    @Override
+    public Item[] getDrops() {
+        List<Item> drops = new ArrayList<>();
+        if (this.getLastDamageCause() != null && this.getLastDamageCause() instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) this.getLastDamageCause()).getDamager() instanceof EntityWitherSkull) {
+            if (this.getLevel().getBlockIdAt(this.getFloorX(), this.getFloorY() - 1, this.getFloorZ()) == BlockID.GRASS && this.getLevel().getBlockIdAt(this.getFloorX(), this.getFloorY(), this.getFloorZ()) == BlockID.AIR) {
+                this.getLevel().setBlockAt(this.getFloorX(), this.getFloorY(), this.getFloorZ(), BlockID.WITHER_ROSE);
+            } else {
+                drops.add(Item.get(MinecraftItemID.WITHER_ROSE.get(1).getId()));
+            }
+        }
+        return drops.toArray(new Item[0]);
     }
 }

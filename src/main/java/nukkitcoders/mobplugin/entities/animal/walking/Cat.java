@@ -11,6 +11,9 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import nukkitcoders.mobplugin.entities.animal.WalkingAnimal;
 import nukkitcoders.mobplugin.utils.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Cat extends WalkingAnimal {
 
     public static final int NETWORK_ID = 75;
@@ -49,10 +52,15 @@ public class Cat extends WalkingAnimal {
 
     @Override
     public Item[] getDrops() {
-        if (!this.isBaby()) {
-            return new Item[]{Item.get(Item.STRING, 0, Utils.rand(0, 2))};
+        List<Item> drops = new ArrayList<>();
+
+        for (Item item : super.getDrops()) {
+            drops.add(item);
         }
-        return new Item[]{};
+        if (!this.isBaby()) {
+            drops.add(Item.get(Item.STRING, 0, Utils.rand(0, 2)));
+        }
+        return drops.toArray(new Item[0]);
     }
 
     @Override
